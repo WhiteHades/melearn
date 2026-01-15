@@ -1,0 +1,32 @@
+[package]
+name = "melearn"
+version = "0.1.0"
+description = "modern local course viewer"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "melearn_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.5.3", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2.9.5", features = ["protocol-asset"] }
+tauri-plugin-log = "2"
+tauri-plugin-fs = { version = "2", features = ["watch"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+tauri-plugin-mpv = "0.5.2"
+jwalk = "0.8"
+rayon = "1.10"
+dashmap = "6.1"
+notify = "6.1"
+libmpv2 = "5.0.3"
