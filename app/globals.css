@@ -275,11 +275,12 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: oklch(var(--border));
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: oklch(var(--background));
+    color: oklch(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
