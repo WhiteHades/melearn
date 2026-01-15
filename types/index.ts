@@ -1,0 +1,80 @@
+export interface Course {
+  id: string
+  name: string
+  path: string
+  sections: Section[]
+  progress: number
+  totalDuration: number
+  watchedDuration: number
+  lastAccessed: Date | null
+  thumbnail: string | null
+}
+
+export interface Section {
+  id: string
+  name: string
+  lessons: Lesson[]
+  order: number
+}
+
+export interface Lesson {
+  id: string
+  courseId: string
+  sectionName: string
+  name: string
+  path: string
+  type: "video" | "audio" | "document" | "quiz"
+  duration: number
+  completed: boolean
+  watchedTime: number
+  lastPosition: number
+  order: number
+  subtitles: SubtitleFile[]
+}
+
+export interface SubtitleFile {
+  path: string
+  language: string
+  label: string
+}
+
+export interface Note {
+  id: string
+  lessonId: string
+  timestamp: number
+  text: string
+  createdAt: Date
+}
+
+export interface Bookmark {
+  id: string
+  lessonId: string
+  timestamp: number
+  label: string
+  createdAt: Date
+}
+
+export interface Settings {
+  libraryPaths: string[]
+  theme: string
+  playbackSpeed: number
+  volume: number
+  autoplay: boolean
+  skipIntro: boolean
+}
+
+export interface ScanResult {
+  type: "library" | "single-course" | "bundle"
+  courses: Course[]
+  warnings: string[]
+}
+
+export type FileType = "video" | "audio" | "document" | "subtitle" | "quiz" | "unknown"
+
+export const VIDEO_EXTENSIONS = [".mp4", ".mkv", ".webm", ".mov", ".avi", ".m4v"]
+export const AUDIO_EXTENSIONS = [".mp3", ".wav", ".aac", ".m4a", ".flac", ".ogg"]
+export const DOCUMENT_EXTENSIONS = [".pdf", ".txt", ".md", ".html", ".docx"]
+export const SUBTITLE_EXTENSIONS = [".srt", ".vtt"]
+export const PARTIAL_EXTENSIONS = [".part", ".crdownload", ".download"]
+export const IGNORED_FOLDERS = [".git", "node_modules", "__MACOSX", ".DS_Store", "Thumbs.db"]
+export const RESOURCE_FOLDERS = ["resources", "assets", "downloads", "extras", "materials"]
