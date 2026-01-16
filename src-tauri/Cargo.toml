@@ -24,9 +24,14 @@ tauri-plugin-log = "2"
 tauri-plugin-fs = { version = "2", features = ["watch"] }
 tauri-plugin-dialog = "2"
 tauri-plugin-sql = { version = "2", features = ["sqlite"] }
-tauri-plugin-mpv = "0.5.2"
 jwalk = "0.8"
 rayon = "1.10"
 dashmap = "6.1"
 notify = "6.1"
-libmpv2 = "5.0.3"
+tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7", features = ["io"] }
+axum = "0.7"
+tower-http = { version = "0.5", features = ["fs", "cors", "trace"] }
+http-range = "0.1"
+urlencoding = "2.1"
+tower = { version = "0.5.3", features = ["util"] }
