@@ -288,7 +288,7 @@ function VideoPlayerComponent({
 
       <div
         className={cn(
-          "absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/90 to-transparent p-4 transition-opacity duration-300",
+          "absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-black/90 to-transparent p-4 transition-opacity duration-300",
           showControls || !isPlaying ? "opacity-100" : "opacity-0"
         )}
       >
@@ -298,29 +298,30 @@ function VideoPlayerComponent({
           step={0.1}
           onValueChange={handleSeek}
           className="mb-4 cursor-pointer"
+          aria-label="video progress"
         />
 
         <div className="flex items-center justify-between text-white">
           <div className="flex items-center gap-2">
             {onPrevious && (
-              <Button variant="ghost" size="icon-sm" onClick={onPrevious} className="text-white hover:bg-white/20">
-                <SkipBack className="size-5" />
+              <Button variant="ghost" size="icon-sm" onClick={onPrevious} className="text-white hover:bg-white/20" aria-label="previous lesson">
+                <SkipBack className="size-5" aria-hidden="true" />
               </Button>
             )}
             
-            <Button variant="ghost" size="icon" onClick={togglePlay} className="text-white hover:bg-white/20">
-              {isPlaying ? <Pause className="size-6" /> : <Play className="size-6" />}
+            <Button variant="ghost" size="icon" onClick={togglePlay} className="text-white hover:bg-white/20" aria-label={isPlaying ? "pause" : "play"}>
+              {isPlaying ? <Pause className="size-6" aria-hidden="true" /> : <Play className="size-6" aria-hidden="true" />}
             </Button>
 
             {onNext && (
-              <Button variant="ghost" size="icon-sm" onClick={onNext} className="text-white hover:bg-white/20">
-                <SkipForward className="size-5" />
+              <Button variant="ghost" size="icon-sm" onClick={onNext} className="text-white hover:bg-white/20" aria-label="next lesson">
+                <SkipForward className="size-5" aria-hidden="true" />
               </Button>
             )}
 
             <div className="group/vol ml-2 flex items-center gap-2">
-              <Button variant="ghost" size="icon-sm" onClick={toggleMute} className="text-white hover:bg-white/20">
-                {isMuted ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
+              <Button variant="ghost" size="icon-sm" onClick={toggleMute} className="text-white hover:bg-white/20" aria-label={isMuted ? "unmute" : "mute"}>
+                {isMuted ? <VolumeX className="size-5" aria-hidden="true" /> : <Volume2 className="size-5" aria-hidden="true" />}
               </Button>
               <Slider
                 value={[isMuted ? 0 : volume]}
@@ -328,6 +329,7 @@ function VideoPlayerComponent({
                 step={0.01}
                 onValueChange={handleVolumeChange}
                 className="w-0 scale-x-0 transition-all duration-200 group-hover/vol:w-20 group-hover/vol:scale-x-100"
+                aria-label="volume"
               />
             </div>
 
@@ -343,7 +345,7 @@ function VideoPlayerComponent({
                   <span className="text-xs font-bold">{speed}x</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-20 min-w-[5rem]">
+              <DropdownMenuContent align="end" className="w-20 min-w-20">
                 {SPEEDS.map((s) => (
                   <DropdownMenuItem key={s} onClick={() => changeSpeed(s)}>
                     {speed === s && <Check className="mr-2 size-3" />}
@@ -353,8 +355,8 @@ function VideoPlayerComponent({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="icon-sm" onClick={toggleFullscreen} className="text-white hover:bg-white/20">
-              {isFullscreen ? <Minimize className="size-5" /> : <Maximize className="size-5" />}
+            <Button variant="ghost" size="icon-sm" onClick={toggleFullscreen} className="text-white hover:bg-white/20" aria-label={isFullscreen ? "exit fullscreen" : "fullscreen"}>
+              {isFullscreen ? <Minimize className="size-5" aria-hidden="true" /> : <Maximize className="size-5" aria-hidden="true" />}
             </Button>
           </div>
         </div>

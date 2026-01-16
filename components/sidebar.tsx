@@ -65,8 +65,8 @@ export function Sidebar({ course, currentLesson, onLessonSelect, onBack }: Sideb
   return (
     <aside className="flex w-72 flex-col border-r bg-sidebar">
       <div className="flex items-center gap-2 border-b p-3">
-        <Button variant="ghost" size="icon-sm" onClick={onBack}>
-          <ChevronLeft className="size-4" />
+        <Button variant="ghost" size="icon-sm" onClick={onBack} aria-label="back to course library">
+          <ChevronLeft className="size-4" aria-hidden="true" />
         </Button>
         <div className="flex-1 truncate">
           <h2 className="truncate text-sm font-semibold">{course.name}</h2>
@@ -97,11 +97,13 @@ export function Sidebar({ course, currentLesson, onLessonSelect, onBack }: Sideb
                 <button
                   className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-sidebar-accent"
                   onClick={() => toggleSection(section.id)}
+                  aria-expanded={isExpanded}
+                  aria-controls={`section-${section.id}`}
                 >
                   {isExpanded ? (
-                    <ChevronDown className="size-4 shrink-0" />
+                    <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
                   ) : (
-                    <ChevronRight className="size-4 shrink-0" />
+                    <ChevronRight className="size-4 shrink-0" aria-hidden="true" />
                   )}
                   <span className="flex-1 truncate font-medium">{section.name}</span>
                   <span className="text-xs text-muted-foreground">
@@ -110,7 +112,7 @@ export function Sidebar({ course, currentLesson, onLessonSelect, onBack }: Sideb
                 </button>
 
                 {isExpanded && (
-                  <div className="ml-4 mt-1 space-y-0.5">
+                  <div className="ml-4 mt-1 space-y-0.5" id={`section-${section.id}`} role="region" aria-label={section.name}>
                     {section.lessons.map((lesson) => {
                       const Icon = getLessonIcon(lesson.type)
                       const isActive = currentLesson?.id === lesson.id
@@ -127,9 +129,9 @@ export function Sidebar({ course, currentLesson, onLessonSelect, onBack }: Sideb
                           onClick={() => onLessonSelect(lesson)}
                         >
                           {lesson.completed ? (
-                            <CheckCircle className="size-4 shrink-0 text-green-500" />
+                            <CheckCircle className="size-4 shrink-0 text-green-500" aria-hidden="true" />
                           ) : (
-                            <Icon className="size-4 shrink-0" />
+                            <Icon className="size-4 shrink-0" aria-hidden="true" />
                           )}
                           <span className="flex-1 truncate">{lesson.name}</span>
                         </button>
