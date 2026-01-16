@@ -1,8 +1,9 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
 mod scanner;
+mod video_server;
 
+use tauri::Manager;
 use tauri_plugin_sql::{Builder as SqlBuilder, Migration, MigrationKind};
+use video_server::{VideoServer, VideoServerState};
 
 fn get_migrations() -> Vec<Migration> {
     vec![
@@ -88,10 +89,14 @@ fn get_migrations() -> Vec<Migration> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    #[cfg(target_os = "linux")]
+    {
+        std::env::set_var("GST_PLUGIN_FEATURE_RANK", "avdec_h264:MAX");
+    }
+    
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_mpv::init())
         .plugin(
             SqlBuilder::default()
                 .add_migrations("sqlite:melearn.db", get_migrations())
@@ -105,11 +110,25 @@ pub fn run() {
                         .build(),
                 )?;
             }
+
+            let port = tauri::async_runtime::block_on(async {
+                match VideoServer::start(9527).await {
+                    Ok(p) => p,
+                    Err(_) => {
+                        let res: u16 = VideoServer::start(0).await.expect("failed to start video server");
+                        res
+                    },
+                }
+            });
+
+            app.manage(VideoServerState { port });
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             scanner::scan_folder,
-            scanner::get_file_info
+            scanner::get_file_info,
+            video_server::get_video_server_port,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
