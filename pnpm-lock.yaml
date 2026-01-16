@@ -95,9 +95,6 @@ importers:
       tailwind-merge:
         specifier: ^3.0.2
         version: 3.4.0
-      tauri-plugin-mpv-api:
-        specifier: ^0.5.2
-        version: 0.5.2
       video.js:
         specifier: ^8.23.4
         version: 8.23.4
@@ -1120,9 +1117,6 @@ packages:
 
   '@tailwindcss/postcss@4.1.18':
     resolution: {integrity: sha512-Ce0GFnzAOuPyfV5SxjXGn0CubwGcuDB0zcdaPuCSzAa/2vII24JTkH+I6jcbXLb1ctjZMZZI6OjDaLPJQL1S0g==}
-
-  '@tauri-apps/api@2.8.0':
-    resolution: {integrity: sha512-ga7zdhbS2GXOMTIZRT0mYjKJtR9fivsXzsyq5U3vjDL0s6DTMwYRm0UHNjzTY5dh4+LSC68Sm/7WEiimbQNYlw==}
 
   '@tauri-apps/api@2.9.1':
     resolution: {integrity: sha512-IGlhP6EivjXHepbBic618GOmiWe4URJiIeZFlB7x3czM0yDHHYviH1Xvoiv4FefdkQtn6v7TuwWCRfOGdnVUGw==}
@@ -2991,10 +2985,6 @@ packages:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
     engines: {node: '>=6'}
 
-  tauri-plugin-mpv-api@0.5.2:
-    resolution: {integrity: sha512-SGUqxD82q5Zcm+0iQxz5gpnic6kscH9YVWVc9VoAeS+OpbmX5FX25qCTHUUlmrsWQyNoTAVij+wTlSjiAmEPUw==}
-    engines: {node: '>=18.0.0'}
-
   tiktok-video-element@0.1.2:
     resolution: {integrity: sha512-w6TboLm236XJKKiIXIhCbYCnUxbixBbaAoty0etaEAZ/2kHkVIdfZdv2oouMU/HGMsWCHI/VjQ3wU3MJ+s192Q==}
 
@@ -4133,8 +4123,6 @@ snapshots:
       '@tailwindcss/oxide': 4.1.18
       postcss: 8.5.6
       tailwindcss: 4.1.18
-
-  '@tauri-apps/api@2.8.0': {}
 
   '@tauri-apps/api@2.9.1': {}
 
@@ -6512,10 +6500,6 @@ snapshots:
   tailwindcss@4.1.18: {}
 
   tapable@2.3.0: {}
-
-  tauri-plugin-mpv-api@0.5.2:
-    dependencies:
-      '@tauri-apps/api': 2.8.0
 
   tiktok-video-element@0.1.2: {}
 
