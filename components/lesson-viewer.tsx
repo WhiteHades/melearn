@@ -27,16 +27,14 @@ export function LessonViewer({ course, initialLesson, onBack }: LessonViewerProp
   const [currentTime, setCurrentTime] = useState(0)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  const {
-    notes,
-    bookmarks,
-    addNote,
-    deleteNote,
-    addBookmark,
-    deleteBookmark,
-    updateLessonProgress,
-    markLessonComplete,
-  } = useCourseStore()
+  const notes = useCourseStore((state) => state.notes)
+  const bookmarks = useCourseStore((state) => state.bookmarks)
+  const addNote = useCourseStore((state) => state.addNote)
+  const deleteNote = useCourseStore((state) => state.deleteNote)
+  const addBookmark = useCourseStore((state) => state.addBookmark)
+  const deleteBookmark = useCourseStore((state) => state.deleteBookmark)
+  const updateLessonProgress = useCourseStore((state) => state.updateLessonProgress)
+  const markLessonComplete = useCourseStore((state) => state.markLessonComplete)
 
   const handleProgress = useCallback(
     (time: number, duration: number) => {
