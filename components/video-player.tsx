@@ -2,14 +2,14 @@
 
 import { useRef, useState, useEffect, useCallback, memo } from "react"
 import { invoke } from "@tauri-apps/api/core"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
+import { Button } from "@/components/retroui/Button"
+import { Slider } from "@/components/retroui/Slider"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/retroui/DropdownMenu"
 import { cn, formatDuration } from "@/lib/utils"
 import { isTauri } from "@/lib/tauri"
 import type { Lesson } from "@/types"
@@ -33,6 +33,7 @@ interface VideoPlayerProps {
   onPrevious?: () => void
   onNext?: () => void
   autoplay?: boolean
+  seekTo?: number | null
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
@@ -44,6 +45,7 @@ function VideoPlayerComponent({
   onPrevious,
   onNext,
   autoplay = false,
+  seekTo,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -67,26 +69,32 @@ function VideoPlayerComponent({
   useEffect(() => {
     async function loadVideoSrc() {
       if (!isVideoFile) return
-      
+
       try {
         if (isTauri()) {
           const port = await invoke<number>("get_video_server_port")
           const videoPath = lesson.path.slice(1)
           const src = `http://127.0.0.1:${port}/video/${encodeURIComponent(videoPath)}`
           setVideoSrc(src)
-          
-          const srtPath = lesson.path.replace(/\.[^.]+$/, ".srt")
-          const srtSrc = `http://127.0.0.1:${port}/video/${encodeURIComponent(srtPath.slice(1))}`
-          setSubtitleSrc(srtSrc)
+
+          const subtitleFile = lesson.subtitles?.[0]
+          if (subtitleFile) {
+            const subtitlePath = subtitleFile.path.slice(1)
+            const subtitleUrl = `http://127.0.0.1:${port}/video/${encodeURIComponent(subtitlePath)}`
+            setSubtitleSrc(subtitleUrl)
+          } else {
+            setSubtitleSrc(null)
+          }
         } else {
           setVideoSrc(lesson.path)
+          setSubtitleSrc(lesson.subtitles?.[0]?.path ?? null)
         }
       } catch (err) {
         setError("failed to load video source")
       }
     }
     loadVideoSrc()
-  }, [lesson.path, isVideoFile])
+  }, [lesson.path, lesson.subtitles, isVideoFile])
 
   useEffect(() => {
     const video = videoRef.current
@@ -132,6 +140,14 @@ function VideoPlayerComponent({
       video.removeEventListener("error", handleError)
     }
   }, [videoSrc, autoplay, lesson.lastPosition, onProgress, onComplete])
+
+  useEffect(() => {
+    if (seekTo === null || seekTo === undefined) return
+    if (!videoRef.current) return
+    videoRef.current.currentTime = seekTo
+    setCurrentTime(seekTo)
+    onProgress(seekTo, videoRef.current.duration)
+  }, [seekTo, onProgress])
 
   const togglePlay = useCallback(() => {
     if (videoRef.current) {
