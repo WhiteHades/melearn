@@ -94,6 +94,8 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
 
   useEffect(() => {
     lastUpdateRef.current = 0
+    setPlayhead(0)
+    setSeekTo(null)
   }, [lessonId])
 
   useEffect(() => {
