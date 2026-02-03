@@ -29,8 +29,11 @@ type TranscriptCue = {
 
 const parseTimecode = (value: string) => {
   const clean = value.replace(",", ".")
-  const [hours, minutes, rest] = clean.split(":")
-  if (!hours || !minutes || !rest) return 0
+  const parts = clean.split(":")
+  if (parts.length < 2) return 0
+  const [hours, minutes, rest] =
+    parts.length === 3 ? parts : ["0", parts[0], parts[1]]
+  if (!minutes || !rest) return 0
   const [seconds, millis = "0"] = rest.split(".")
   const total =
     Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds) + Number(millis) / 1000
