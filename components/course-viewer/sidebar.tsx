@@ -40,7 +40,11 @@ export function Sidebar({ className, onBack, course, currentLessonId, onSelectLe
         <div className="p-4 w-full min-w-0">
         <Accordion type="single" collapsible className="w-full space-y-2 min-w-0">
           {course.sections.map((section: Section, index: number) => (
-            <Accordion.Item key={section.id} value={section.id} className="bg-card w-full">
+            <Accordion.Item
+              key={section.id}
+              value={section.id}
+              className="bg-card w-full shadow-none"
+            >
               <Accordion.Header className="font-bold text-sm">
                 <div className="flex items-center min-w-0 pr-2 text-left">
                   <span className="mr-2 text-muted-foreground shrink-0">#{index + 1}</span>
