@@ -58,7 +58,7 @@ export function Sidebar({ className, onBack, course, currentLessonId, onSelectLe
                         className={cn(
                           "flex w-full min-w-0 items-center justify-between rounded px-4 py-2 text-left text-sm transition-colors border-2 border-transparent",
                           isActive 
-                            ? "bg-primary/20 border-primary font-bold" 
+                            ? "bg-primary text-primary-foreground border-black font-bold" 
                             : "hover:bg-muted/50 hover:underline"
                         )}
                       >
