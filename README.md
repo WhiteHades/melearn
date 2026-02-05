@@ -1,23 +1,30 @@
 # melearn
 
-modern, shadcn-powered offline course viewer with tauri desktop app.
+modern offline course viewer with a tauri desktop app.
 
 ## features
 
-- 📚 scan and organize local video courses
-- 🎬 custom video player with keyboard shortcuts
-- 📝 timestamped notes and bookmarks
-- 🔍 command palette search (⌘k)
-- 📊 analytics dashboard with progress tracking
-- 🎨 10 color themes (catppuccin, gruvbox, tokyo night, etc.)
-- 💾 offline-first with sqlite persistence
+- scan and organize local video courses
+- custom video player with keyboard shortcuts
+- timestamped notes and bookmarks
+- command palette search (cmd+k)
+- analytics dashboard with progress tracking
+- retro ui themes
+- offline-first with sqlite persistence
 
 ## tech stack
 
-- **frontend**: next.js 16, react 19, tailwind css 4, shadcn/ui
-- **desktop**: tauri 2.x with rust backend
-- **state**: zustand v5.0.8 with persist middleware
-- **search**: minisearch for fast local search
+- frontend: next.js 16, react 19, tailwind css 4, retroui components
+- data: trpc, @tanstack/react-query
+- forms: react-hook-form, zod
+- state: zustand with persist
+- search: minisearch
+- url state: nuqs
+- charts: recharts
+- tables: @tanstack/react-table
+- animations: motion
+- date utils: date-fns
+- desktop: tauri 2.x with rust backend
 
 ## development
 
@@ -56,9 +63,9 @@ pnpm tauri:build:macos-arm # macos apple silicon
 
 build outputs:
 
-- **linux**: `src-tauri/target/release/bundle/deb/` and `appimage/`
-- **windows**: `src-tauri/target/release/bundle/msi/` and `nsis/`
-- **macos**: `src-tauri/target/release/bundle/dmg/` and `macos/`
+- linux: `src-tauri/target/release/bundle/deb/` and `appimage/`
+- windows: `src-tauri/target/release/bundle/msi/` and `nsis/`
+- macos: `src-tauri/target/release/bundle/dmg/` and `macos/`
 
 ## keyboard shortcuts
 
@@ -72,8 +79,8 @@ build outputs:
 | ↑/↓     | volume up/down   |
 | n       | next lesson      |
 | p       | previous lesson  |
-| ⌘k      | search           |
+| cmd+k   | search           |
 
 ## license
 
-source available - see LICENSE for details.
+source available - see license for details.
