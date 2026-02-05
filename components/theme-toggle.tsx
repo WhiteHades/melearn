@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Sun, Palette } from "lucide-react"
+import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/retroui/Button"
+import { useThemeStore } from "@/lib/stores/theme-store"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/retroui/DropdownMenu"
 
 const themes = [
   { value: "light", label: "light" },
@@ -20,17 +21,20 @@ const themes = [
 ] as const
 
 const colorThemes = [
-  { value: "catppuccin-mocha", label: "catppuccin mocha" },
-  { value: "gruvbox-dark", label: "gruvbox dark" },
-  { value: "tokyo-night", label: "tokyo night" },
-  { value: "nord", label: "nord" },
-  { value: "dracula", label: "dracula" },
-  { value: "one-dark", label: "one dark" },
-  { value: "rose-pine", label: "rosé pine" },
+  { value: "yellow", label: "yellow (default)", color: "#ffdb33" },
+  { value: "purple", label: "purple", color: "#5F4FE6" },
+  { value: "lime", label: "lime", color: "#AAFC3D" },
+  { value: "red", label: "red", color: "#EA435F" },
+  { value: "lavender", label: "lavender", color: "#C4A1FF" },
+  { value: "orange", label: "orange", color: "#F07200" },
+  { value: "green", label: "green", color: "#599D77" },
 ] as const
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
+  const setColor = useThemeStore(
+    (state: ReturnType<typeof useThemeStore.getState>) => state.setColor
+  )
 
   return (
     <DropdownMenu>
@@ -55,7 +59,8 @@ export function ThemeToggle() {
           color theme
         </DropdownMenuLabel>
         {colorThemes.map((t) => (
-          <DropdownMenuItem key={t.value} onClick={() => setTheme(t.value)}>
+          <DropdownMenuItem key={t.value} onClick={() => setColor(t.value)}>
+             <div className="mr-2 h-3 w-3 rounded-full border border-border" style={{ backgroundColor: t.color }} />
             {t.label}
           </DropdownMenuItem>
         ))}
