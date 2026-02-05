@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { readTextFile } from "@tauri-apps/plugin-fs"
 import { convertFileSrc } from "@tauri-apps/api/core"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/retroui/Button"
+import { ScrollArea } from "@/components/retroui/ScrollArea"
 import { isTauri } from "@/lib/tauri"
 import type { Lesson } from "@/types"
 import { SkipBack, SkipForward, FileText, File, FileCode, ExternalLink, Code } from "lucide-react"
@@ -37,9 +37,6 @@ export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps
       setContent(null)
       setAssetSrc(null)
 
-      console.log("[content-viewer] loading:", lesson.path)
-      console.log("[content-viewer] ext:", ext, "isHtml:", isHtml, "isMarkdown:", isMarkdown)
-
       try {
         if (!isTauri()) {
           setError("file viewing requires desktop app")
@@ -48,16 +45,12 @@ export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps
 
         if (isPdf || isHtml) {
           const src = convertFileSrc(lesson.path)
-          console.log("[content-viewer] iframe src:", src)
           setAssetSrc(src)
         } else if (isTextFile || isMarkdown) {
-          console.log("[content-viewer] calling readTextFile...")
           const text = await readTextFile(lesson.path)
-          console.log("[content-viewer] loaded text length:", text.length)
           setContent(text)
         }
       } catch (err) {
-        console.error("[content-viewer] error:", err)
         setError(`failed to load file: ${err}`)
       } finally {
         setLoading(false)

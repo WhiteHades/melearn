@@ -1,22 +1,49 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { motion } from "motion/react"
 import { CourseCard } from "@/components/course-card"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/retroui/Button"
 import { useCourseStore } from "@/lib/stores/course-store"
-import { selectFolderDialog, scanFolder, isTauri } from "@/lib/tauri"
-import { processScanResult } from "@/lib/course-utils"
-import { indexCourses } from "@/lib/search"
+import { selectFolderDialog, isTauri } from "@/lib/tauri"
+import { searchCourses } from "@/lib/search"
+import { trpc } from "@/lib/trpc/client"
 import { FolderOpen, Loader2, RefreshCw } from "lucide-react"
 import type { Course } from "@/types"
 
 interface CourseGridProps {
   onCourseSelect: (course: Course) => void
+  searchQuery?: string
+  layout?: "grid" | "list"
 }
 
-export function CourseGrid({ onCourseSelect }: CourseGridProps) {
-  const { courses, setCourses, isScanning, setIsScanning, libraryPath, setLibraryPath } = useCourseStore()
+export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: CourseGridProps) {
+  const isScanning = useCourseStore(
+    (state: ReturnType<typeof useCourseStore.getState>) => state.isScanning
+  )
+  const setIsScanning = useCourseStore(
+    (state: ReturnType<typeof useCourseStore.getState>) => state.setIsScanning
+  )
+  const libraryPath = useCourseStore(
+    (state: ReturnType<typeof useCourseStore.getState>) => state.libraryPath
+  )
   const [error, setError] = useState<string | null>(null)
+  const utils = trpc.useUtils()
+  const { data: courses = [] } = trpc.courses.list.useQuery()
+  const scanLibrary = trpc.library.scan.useMutation({
+    onSuccess: async () => {
+      await utils.courses.list.invalidate()
+    },
+  })
+
+  const normalizedQuery = searchQuery?.trim() ?? ""
+
+  const visibleCourses = useMemo<Course[]>(() => {
+    if (!normalizedQuery) return courses
+    const results = searchCourses(normalizedQuery, 50)
+    const ids = new Set(results.map((result) => result.id))
+    return courses.filter((course: Course) => ids.has(course.id))
+  }, [courses, normalizedQuery])
 
   async function handleSelectFolder() {
     if (!isTauri()) {
@@ -30,16 +57,7 @@ export function CourseGrid({ onCourseSelect }: CourseGridProps) {
 
       setIsScanning(true)
       setError(null)
-      setLibraryPath(path)
-
-      const result = await scanFolder(path)
-      const processedCourses = processScanResult(result)
-      setCourses(processedCourses)
-      indexCourses(processedCourses)
-
-      if (result.warnings.length > 0) {
-        console.warn("scan warnings:", result.warnings)
-      }
+      await scanLibrary.mutateAsync({ path })
     } catch (err) {
       setError(err instanceof Error ? err.message : "failed to scan folder")
     } finally {
@@ -54,10 +72,7 @@ export function CourseGrid({ onCourseSelect }: CourseGridProps) {
       setIsScanning(true)
       setError(null)
 
-      const result = await scanFolder(libraryPath)
-      const processedCourses = processScanResult(result)
-      setCourses(processedCourses)
-      indexCourses(processedCourses)
+      await scanLibrary.mutateAsync({ path: libraryPath })
     } catch (err) {
       setError(err instanceof Error ? err.message : "failed to refresh")
     } finally {
@@ -68,16 +83,16 @@ export function CourseGrid({ onCourseSelect }: CourseGridProps) {
   if (courses.length === 0 && !isScanning) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
-        <div className="flex size-16 items-center justify-center rounded-full bg-muted">
+        <div className="flex size-16 items-center justify-center rounded-full bg-muted border-2 border-black">
           <FolderOpen className="size-8 text-muted-foreground" />
         </div>
         <div className="text-center">
-          <h2 className="text-lg font-semibold">no courses yet</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="text-lg font-head font-bold">no courses yet</h2>
+          <p className="mt-1 text-sm text-muted-foreground font-sans">
             select a folder containing your courses to get started
           </p>
         </div>
-        <Button onClick={handleSelectFolder} disabled={isScanning}>
+        <Button onClick={handleSelectFolder} disabled={isScanning} className="font-bold border-2 border-black shadow-md">
           {isScanning ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
@@ -90,26 +105,34 @@ export function CourseGrid({ onCourseSelect }: CourseGridProps) {
             </>
           )}
         </Button>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm text-destructive font-bold">{error}</p>}
       </div>
     )
   }
+
+  const layoutClassName =
+    layout === "list"
+      ? "flex flex-col gap-4"
+      : "grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">your courses</h2>
-          <p className="text-sm text-muted-foreground">
-            {courses.length} course{courses.length !== 1 ? "s" : ""} found
+          <h2 className="text-lg font-head font-bold">your courses</h2>
+          <p className="text-sm text-muted-foreground font-sans">
+            <span className="mr-2 inline-flex items-center rounded-full border-2 border-black bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
+              {visibleCourses.length}
+            </span>
+            course{visibleCourses.length !== 1 ? "s" : ""} found
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isScanning}>
+          <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={isScanning} className="border-2 border-black">
             <RefreshCw className={`mr-2 size-4 ${isScanning ? "animate-spin" : ""}`} />
             refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={handleSelectFolder} disabled={isScanning}>
+          <Button variant="secondary" size="sm" onClick={handleSelectFolder} disabled={isScanning} className="border-2 border-black">
             <FolderOpen className="mr-2 size-4" />
             change folder
           </Button>
@@ -117,20 +140,36 @@ export function CourseGrid({ onCourseSelect }: CourseGridProps) {
       </div>
       
       {error && (
-        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive font-bold border-2 border-destructive">
           {error}
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {courses.map((course) => (
-          <CourseCard
-            key={course.id}
-            course={course}
-            onClick={() => onCourseSelect(course)}
-          />
-        ))}
-      </div>
+      {normalizedQuery && visibleCourses.length === 0 ? (
+        <div className="rounded-md border-2 border-black bg-muted/30 p-6 text-center">
+          <p className="text-sm font-bold">no matches for "{normalizedQuery}"</p>
+          <p className="mt-1 text-xs text-muted-foreground">try a different search term</p>
+        </div>
+      ) : (
+        <div className={layoutClassName}>
+          {visibleCourses.map((course: Course, index: number) => (
+            <motion.div
+              key={course.id}
+              layout
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: index * 0.02 }}
+              className={layout === "grid" ? "h-full" : ""}
+            >
+              <CourseCard
+                course={course}
+                onClick={() => onCourseSelect(course)}
+                layout={layout}
+              />
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
