@@ -38,7 +38,7 @@ export function BookmarksPanel({
       lessonId,
       timestamp: currentTimestamp,
       label: newLabel.trim() || `bookmark at ${formatDuration(currentTimestamp)}`,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     }
 
     onAddBookmark(bookmark)

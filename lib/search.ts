@@ -6,6 +6,7 @@ interface SearchDocument {
   type: "course" | "lesson"
   name: string
   path: string
+  courseId?: string
   courseName?: string
   sectionName?: string
 }
@@ -15,7 +16,15 @@ let searchIndex: MiniSearch<SearchDocument> | null = null
 export function initSearchIndex(): void {
   searchIndex = new MiniSearch<SearchDocument>({
     fields: ["name", "courseName", "sectionName"],
-    storeFields: ["id", "type", "name", "path", "courseName", "sectionName"],
+    storeFields: [
+      "id",
+      "type",
+      "name",
+      "path",
+      "courseId",
+      "courseName",
+      "sectionName",
+    ],
     searchOptions: {
       boost: { name: 2 },
       fuzzy: 0.2,
@@ -37,6 +46,7 @@ export function indexCourses(courses: Course[]): void {
       type: "course",
       name: course.name,
       path: course.path,
+      courseId: course.id,
     })
 
     for (const section of course.sections) {
@@ -46,6 +56,7 @@ export function indexCourses(courses: Course[]): void {
           type: "lesson",
           name: lesson.name,
           path: lesson.path,
+          courseId: course.id,
           courseName: course.name,
           sectionName: section.name,
         })
@@ -61,6 +72,7 @@ export interface SearchResult {
   type: "course" | "lesson"
   name: string
   path: string
+  courseId?: string
   courseName?: string
   sectionName?: string
   score: number
@@ -76,6 +88,7 @@ export function search(query: string, limit = 20): SearchResult[] {
     type: r.type as "course" | "lesson",
     name: r.name,
     path: r.path,
+    courseId: r.courseId,
     courseName: r.courseName,
     sectionName: r.sectionName,
     score: r.score,

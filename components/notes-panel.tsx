@@ -40,7 +40,7 @@ export function NotesPanel({
       lessonId,
       timestamp: currentTimestamp,
       text: newNoteText.trim(),
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     }
 
     onAddNote(note)

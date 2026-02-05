@@ -21,7 +21,7 @@ function mapFileType(type: FileEntry["file_type"]): Lesson["type"] {
     case "quiz":
       return "quiz"
     default:
-      return "video"
+      return "document"
   }
 }
 
@@ -53,8 +53,7 @@ function extractSubtitles(files: FileEntry[], videoPath: string): Lesson["subtit
 
 function sectionDataToSection(
   data: SectionData,
-  courseId: string,
-  allFiles: FileEntry[]
+  courseId: string
 ): Section {
   const lessons: Lesson[] = data.files
     .filter((f) => f.file_type !== "subtitle")
@@ -84,11 +83,10 @@ function sectionDataToSection(
 
 function courseDataToCourse(data: CourseData): Course {
   const courseId = generateCourseId()
-  const allFiles = data.sections.flatMap((s) => s.files)
-  
+
   const sections = data.sections
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
-    .map((s, index) => sectionDataToSection({ ...s, order: index }, courseId, allFiles))
+    .map((s, index) => sectionDataToSection({ ...s, order: index }, courseId))
 
   const totalLessons = sections.reduce((sum, s) => sum + s.lessons.length, 0)
 

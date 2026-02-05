@@ -21,7 +21,7 @@ export async function saveCourse(course: Course): Promise<void> {
       course.path,
       course.totalDuration,
       course.watchedDuration,
-      course.lastAccessed?.toISOString() ?? null,
+      course.lastAccessed ?? null,
       JSON.stringify({ thumbnail: course.thumbnail }),
     ]
   )
@@ -117,7 +117,7 @@ export async function loadCourses(): Promise<Course[]> {
       progress: 0,
       totalDuration: row.total_duration,
       watchedDuration: row.watched_duration,
-      lastAccessed: row.last_accessed ? new Date(row.last_accessed) : null,
+      lastAccessed: row.last_accessed ?? null,
       thumbnail: metadata.thumbnail ?? null,
     })
   }
@@ -144,7 +144,7 @@ export async function saveNote(note: Note): Promise<void> {
 
   await db.execute(
     `INSERT INTO notes (id, lesson_id, timestamp, text, created_at) VALUES ($1, $2, $3, $4, $5)`,
-    [note.id, note.lessonId, note.timestamp, note.text, note.createdAt.toISOString()]
+    [note.id, note.lessonId, note.timestamp, note.text, note.createdAt]
   )
 }
 
@@ -169,7 +169,7 @@ export async function loadNotes(lessonId: string): Promise<Note[]> {
     lessonId: row.lesson_id,
     timestamp: row.timestamp,
     text: row.text,
-    createdAt: new Date(row.created_at),
+    createdAt: row.created_at,
   }))
 }
 
@@ -178,7 +178,7 @@ export async function saveBookmark(bookmark: Bookmark): Promise<void> {
 
   await db.execute(
     `INSERT INTO bookmarks (id, lesson_id, timestamp, label, created_at) VALUES ($1, $2, $3, $4, $5)`,
-    [bookmark.id, bookmark.lessonId, bookmark.timestamp, bookmark.label, bookmark.createdAt.toISOString()]
+    [bookmark.id, bookmark.lessonId, bookmark.timestamp, bookmark.label, bookmark.createdAt]
   )
 }
 
@@ -203,7 +203,7 @@ export async function loadBookmarks(lessonId: string): Promise<Bookmark[]> {
     lessonId: row.lesson_id,
     timestamp: row.timestamp,
     label: row.label ?? "",
-    createdAt: new Date(row.created_at),
+    createdAt: row.created_at,
   }))
 }
 

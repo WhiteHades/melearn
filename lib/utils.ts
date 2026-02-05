@@ -1,33 +1,32 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import clsx from "clsx"
+import { intervalToDuration, format } from "date-fns"
+import { type ClassNameValue, twMerge } from "tailwind-merge"
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+export function cn(...classes: ClassNameValue[]) {
+  return twMerge(clsx(classes))
 }
 
-export function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = Math.floor(seconds % 60)
+export function formatDuration(totalSeconds: number) {
+  if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) {
+    return "0:00"
+  }
+
+  const duration = intervalToDuration({
+    start: 0,
+    end: Math.floor(totalSeconds) * 1000,
+  })
+  const hours = duration.hours ?? 0
+  const minutes = duration.minutes ?? 0
+  const seconds = duration.seconds ?? 0
 
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
   }
-  return `${minutes}:${secs.toString().padStart(2, "0")}`
+
+  return `${minutes}:${String(seconds).padStart(2, "0")}`
 }
 
-export function formatBytes(bytes: number): string {
-  if (bytes === 0) return "0 bytes"
-  const k = 1024
-  const sizes = ["bytes", "kb", "mb", "gb", "tb"]
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
-}
-
-export function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "")
+export function formatTimestamp(value: Date | string) {
+  const date = typeof value === "string" ? new Date(value) : value
+  return format(date, "MMM d, yyyy p")
 }

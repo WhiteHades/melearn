@@ -6,7 +6,7 @@ export interface Course {
   progress: number
   totalDuration: number
   watchedDuration: number
-  lastAccessed: Date | null
+  lastAccessed: string | null
   thumbnail: string | null
 }
 
@@ -43,7 +43,7 @@ export interface Note {
   lessonId: string
   timestamp: number
   text: string
-  createdAt: Date
+  createdAt: string
 }
 
 export interface Bookmark {
@@ -51,7 +51,7 @@ export interface Bookmark {
   lessonId: string
   timestamp: number
   label: string
-  createdAt: Date
+  createdAt: string
 }
 
 export interface Settings {
@@ -64,7 +64,7 @@ export interface Settings {
 }
 
 export interface ScanResult {
-  type: "library" | "single-course" | "bundle"
+  scan_type: "library" | "singlecourse" | "bundle"
   courses: Course[]
   warnings: string[]
 }

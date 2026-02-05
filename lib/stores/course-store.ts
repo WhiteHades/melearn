@@ -1,6 +1,7 @@
-import { create } from "zustand"
+import { create, type StoreApi } from "zustand"
 import { persist } from "zustand/middleware"
-import type { Course, Lesson, Note, Bookmark, Settings, ScanResult } from "@/types"
+import type { Course, Lesson, Note, Bookmark, Settings, Section } from "@/types"
+import type { ScanResult } from "@/lib/tauri"
 
 interface CourseState {
   courses: Course[]
@@ -55,91 +56,93 @@ const initialState: CourseState = {
   libraryPath: null,
 }
 
-export const useCourseStore = create<CourseStore>()(
-  persist(
-    (set, get) => ({
-      ...initialState,
+type CourseStoreSet = StoreApi<CourseStore>["setState"]
+type CourseStoreGet = StoreApi<CourseStore>["getState"]
 
-      setCourses: (courses) => set({ courses }),
+const createCourseStore = (set: CourseStoreSet, _get: CourseStoreGet): CourseStore => ({
+  ...initialState,
 
-      setCurrentCourse: (course) => set({ currentCourse: course }),
+  setCourses: (courses: Course[]) => set({ courses }),
 
-      setCurrentLesson: (lesson) => set({ currentLesson: lesson }),
+  setCurrentCourse: (course: Course | null) => set({ currentCourse: course }),
 
-      addNote: (note) =>
-        set((state) => ({
-          notes: [...state.notes, note],
+  setCurrentLesson: (lesson: Lesson | null) => set({ currentLesson: lesson }),
+
+  addNote: (note: Note) =>
+    set((state: CourseStore) => ({
+      notes: [...state.notes, note],
+    })),
+
+  updateNote: (id: string, text: string) =>
+    set((state: CourseStore) => ({
+      notes: state.notes.map((n: Note) => (n.id === id ? { ...n, text } : n)),
+    })),
+
+  deleteNote: (id: string) =>
+    set((state: CourseStore) => ({
+      notes: state.notes.filter((n: Note) => n.id !== id),
+    })),
+
+  addBookmark: (bookmark: Bookmark) =>
+    set((state: CourseStore) => ({
+      bookmarks: [...state.bookmarks, bookmark],
+    })),
+
+  deleteBookmark: (id: string) =>
+    set((state: CourseStore) => ({
+      bookmarks: state.bookmarks.filter((b: Bookmark) => b.id !== id),
+    })),
+
+  updateLessonProgress: (lessonId: string, watchedTime: number, lastPosition: number) =>
+    set((state: CourseStore) => {
+      const updatedCourses = state.courses.map((course: Course) => ({
+        ...course,
+        sections: course.sections.map((section: Section) => ({
+          ...section,
+          lessons: section.lessons.map((lesson: Lesson) =>
+            lesson.id === lessonId
+              ? { ...lesson, watchedTime, lastPosition }
+              : lesson
+          ),
         })),
-
-      updateNote: (id, text) =>
-        set((state) => ({
-          notes: state.notes.map((n) => (n.id === id ? { ...n, text } : n)),
-        })),
-
-      deleteNote: (id) =>
-        set((state) => ({
-          notes: state.notes.filter((n) => n.id !== id),
-        })),
-
-      addBookmark: (bookmark) =>
-        set((state) => ({
-          bookmarks: [...state.bookmarks, bookmark],
-        })),
-
-      deleteBookmark: (id) =>
-        set((state) => ({
-          bookmarks: state.bookmarks.filter((b) => b.id !== id),
-        })),
-
-      updateLessonProgress: (lessonId, watchedTime, lastPosition) =>
-        set((state) => {
-          const updatedCourses = state.courses.map((course) => ({
-            ...course,
-            sections: course.sections.map((section) => ({
-              ...section,
-              lessons: section.lessons.map((lesson) =>
-                lesson.id === lessonId
-                  ? { ...lesson, watchedTime, lastPosition }
-                  : lesson
-              ),
-            })),
-          }))
-          return { courses: updatedCourses }
-        }),
-
-      markLessonComplete: (lessonId, completed) =>
-        set((state) => {
-          const updatedCourses = state.courses.map((course) => ({
-            ...course,
-            sections: course.sections.map((section) => ({
-              ...section,
-              lessons: section.lessons.map((lesson) =>
-                lesson.id === lessonId ? { ...lesson, completed } : lesson
-              ),
-            })),
-          }))
-          return { courses: updatedCourses }
-        }),
-
-      updateSettings: (newSettings) =>
-        set((state) => ({
-          settings: { ...state.settings, ...newSettings },
-        })),
-
-      setIsScanning: (isScanning) => set({ isScanning }),
-
-      setScanResult: (scanResult) => set({ scanResult }),
-
-      setLibraryPath: (libraryPath) => set({ libraryPath }),
-
-      reset: () => set(initialState),
+      }))
+      return { courses: updatedCourses }
     }),
-    {
-      name: "melearn-storage",
-      partialize: (state) => ({
-        settings: state.settings,
-        libraryPath: state.libraryPath,
-      }),
-    }
-  )
+
+  markLessonComplete: (lessonId: string, completed: boolean) =>
+    set((state: CourseStore) => {
+      const updatedCourses = state.courses.map((course: Course) => ({
+        ...course,
+        sections: course.sections.map((section: Section) => ({
+          ...section,
+          lessons: section.lessons.map((lesson: Lesson) =>
+            lesson.id === lessonId ? { ...lesson, completed } : lesson
+          ),
+        })),
+      }))
+      return { courses: updatedCourses }
+    }),
+
+  updateSettings: (newSettings: Partial<Settings>) =>
+    set((state: CourseStore) => ({
+      settings: { ...state.settings, ...newSettings },
+    })),
+
+  setIsScanning: (isScanning: boolean) => set({ isScanning }),
+
+  setScanResult: (scanResult: ScanResult | null) => set({ scanResult }),
+
+  setLibraryPath: (libraryPath: string | null) => set({ libraryPath }),
+
+  reset: () => set(initialState),
+})
+
+export const useCourseStore = create<CourseStore>()(
+  persist(createCourseStore, {
+    name: "melearn-storage",
+    partialize: (state: CourseStore) => ({
+      settings: state.settings,
+      libraryPath: state.libraryPath,
+    }),
+  })
 )
