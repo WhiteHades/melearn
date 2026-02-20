@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { isTauri } from "@/lib/tauri"
 import { X, Minus, Square, Copy } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false)
@@ -36,43 +37,47 @@ export function TitleBar() {
   const handleClose = () => getCurrentWindow().close()
 
   return (
-    <div 
-      data-tauri-drag-region 
-      className="sticky top-0 left-0 right-0 z-50 flex h-10 w-full shrink-0 items-center justify-between border-b-2 border-black bg-background px-4 select-none"
+    <div
+      data-tauri-drag-region
+      className="sticky top-0 left-0 right-0 z-50 flex h-10 w-full shrink-0 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur select-none"
     >
-      {/* Left: Branding/Drag Region */}
-      <div className="flex items-center gap-2 font-head font-bold text-sm" data-tauri-drag-region>
-        <div className="h-3 w-3 rounded-full bg-primary border border-black" />
+      <div className="flex items-center gap-2 font-head text-sm" data-tauri-drag-region>
+        <div className="h-2.5 w-2.5 rounded-full bg-primary" />
         melearn
       </div>
 
-      {/* Center: Drag Region Spacer */}
       <div className="flex-1 h-full" data-tauri-drag-region />
 
-      {/* Right: Window Controls */}
       <div className="flex items-center gap-1">
-        <button 
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={handleMinimize}
-          className="flex h-8 w-8 items-center justify-center hover:bg-muted active:bg-primary border-transparent rounded hover:border-black hover:border transition-colors focus:outline-none"
+          aria-label="minimize"
         >
           <Minus className="h-4 w-4" />
-        </button>
-        <button 
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={handleMaximize}
-          className="flex h-8 w-8 items-center justify-center hover:bg-muted active:bg-primary border-transparent rounded hover:border-black hover:border transition-colors focus:outline-none"
+          aria-label={isMaximized ? "restore" : "maximize"}
         >
           {isMaximized ? (
-             <Copy className="h-3 w-3 rotate-180" /> // Using Copy icon rotated/styled as 'Restore' makeshift
+            <Copy className="h-3.5 w-3.5 rotate-180" />
           ) : (
-             <Square className="h-3 w-3" />
+            <Square className="h-3.5 w-3.5" />
           )}
-        </button>
-        <button 
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={handleClose}
-          className="flex h-8 w-8 items-center justify-center hover:bg-destructive hover:text-white border-transparent rounded hover:border-black hover:border transition-colors focus:outline-none"
+          className="hover:bg-destructive hover:text-destructive-foreground"
+          aria-label="close"
         >
           <X className="h-4 w-4" />
-        </button>
+        </Button>
       </div>
     </div>
   )
