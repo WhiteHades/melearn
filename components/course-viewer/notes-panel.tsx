@@ -4,10 +4,10 @@ import { useEffect, useMemo } from "react"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Tabs, TabsTriggerList, TabsTrigger, TabsContent } from "@/components/retroui/Tabs"
-import { Textarea } from "@/components/retroui/Textarea"
-import { Button } from "@/components/retroui/Button"
-import { Label } from "@/components/retroui/Label"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import { cn, formatDuration, formatTimestamp } from "@/lib/utils"
 import { trpc } from "@/lib/trpc/client"
 import type { Lesson, Note } from "@/types"
@@ -75,30 +75,24 @@ export function NotesPanel({ className, lesson }: NotesPanelProps) {
 
   return (
     <div className={cn("flex h-full flex-col bg-background", className)}>
-      <div className="h-1 w-full bg-primary" />
+      <div className="h-px w-full bg-border" />
       <Tabs defaultValue="notes" className="flex-1 flex flex-col">
         <div className="border-b border-border bg-muted/30 px-4">
-          <TabsTriggerList className="w-full justify-start gap-4 h-12 bg-transparent p-0 border-none">
-            <TabsTrigger
-              value="notes"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border-b-2 border-transparent data-[state=active]:border-black rounded-none h-full font-bold px-4 top-0"
-            >
+          <TabsList className="h-12 w-full justify-start gap-2 bg-transparent">
+            <TabsTrigger value="notes" className="h-9 px-3">
               my notes
             </TabsTrigger>
-            <TabsTrigger
-              value="resources"
-              className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground border-b-2 border-transparent data-[state=active]:border-black rounded-none h-full font-bold px-4 top-0"
-            >
+            <TabsTrigger value="resources" className="h-9 px-3">
               resources
             </TabsTrigger>
-          </TabsTriggerList>
+          </TabsList>
         </div>
 
         <div className="flex-1 overflow-hidden">
           <TabsContent value="notes" className="h-full p-4 space-y-4 m-0 mt-0">
             <form className="flex flex-col h-full gap-3" onSubmit={handleSubmit}>
               <div className="flex items-center justify-between">
-                <Label htmlFor="session-notes" className="font-head font-bold text-lg">
+                <Label htmlFor="session-notes" className="font-head text-lg">
                   session notes
                 </Label>
                 {lesson ? (
@@ -110,7 +104,7 @@ export function NotesPanel({ className, lesson }: NotesPanelProps) {
               <Textarea
                 id="session-notes"
                 placeholder="type your notes here..."
-                className="flex-1 resize-none border-2 border-black shadow-sm font-sans focus-visible:ring-primary"
+                className="flex-1 resize-none font-sans"
                 {...form.register("text")}
                 aria-invalid={Boolean(form.formState.errors.text)}
                 disabled={!lesson || addNote.isPending}
@@ -122,53 +116,53 @@ export function NotesPanel({ className, lesson }: NotesPanelProps) {
               )}
               <Button
                 type="submit"
-                className="w-full font-bold border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-y-px hover:shadow-none transition-all"
+                className="w-full"
                 disabled={!lesson || addNote.isPending}
               >
                 {addNote.isPending ? "saving..." : "save notes"}
               </Button>
             </form>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-bold">saved notes</p>
-                <span className="text-xs text-muted-foreground">{notes.length}</span>
-              </div>
-              {notes.length === 0 ? (
-                <p className="text-xs text-muted-foreground italic">no notes yet</p>
-              ) : (
-                <div className="space-y-3">
-                  {notes.map((note: Note) => (
-                    <div
-                      key={note.id}
-                      className="rounded-md border-2 border-black bg-background p-3"
-                    >
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="font-mono">{formatDuration(note.timestamp)}</span>
-                        <span>{formatTimestamp(note.createdAt)}</span>
-                      </div>
-                      <p className="mt-2 text-sm whitespace-pre-wrap">{note.text}</p>
-                      <div className="mt-3 flex justify-end">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeNote.mutate({ noteId: note.id })}
-                          disabled={removeNote.isPending}
-                        >
-                          delete
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">saved notes</p>
+                  <span className="text-xs text-muted-foreground">{notes.length}</span>
                 </div>
-              )}
-            </div>
+                {notes.length === 0 ? (
+                  <p className="text-xs text-muted-foreground italic">no notes yet</p>
+                ) : (
+                  <div className="space-y-3">
+                    {notes.map((note: Note) => (
+                      <div
+                        key={note.id}
+                        className="rounded-md border border-border bg-background p-3"
+                      >
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="font-mono">{formatDuration(note.timestamp)}</span>
+                          <span>{formatTimestamp(note.createdAt)}</span>
+                        </div>
+                        <p className="mt-2 text-sm whitespace-pre-wrap">{note.text}</p>
+                        <div className="mt-3 flex justify-end">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeNote.mutate({ noteId: note.id })}
+                            disabled={removeNote.isPending}
+                          >
+                            delete
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
           </TabsContent>
 
           <TabsContent value="resources" className="h-full p-4 m-0 mt-0">
             <div className="space-y-4">
-              <h3 className="font-head font-bold text-lg">resources</h3>
+              <h3 className="font-head text-lg">resources</h3>
               <p className="text-muted-foreground italic text-sm">no attached resources.</p>
             </div>
           </TabsContent>
