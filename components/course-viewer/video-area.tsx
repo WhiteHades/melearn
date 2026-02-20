@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { readTextFile } from "@tauri-apps/plugin-fs"
-import { Card } from "@/components/retroui/Card"
-import { Badge } from "@/components/retroui/Badge"
-import { Button } from "@/components/retroui/Button"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn, formatDuration } from "@/lib/utils"
 import { trpc } from "@/lib/trpc/client"
 import { isTauri } from "@/lib/tauri"
@@ -215,8 +215,8 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
   if (!lesson) {
     return (
       <div className={cn("flex h-full flex-col bg-background p-6 items-center justify-center text-center", className)}>
-        <div className="p-8 border-4 border-dashed border-muted-foreground/30 rounded-xl">
-          <h3 className="text-xl font-bold font-head text-muted-foreground">
+        <div className="p-8 border border-dashed border-muted-foreground/40 rounded-xl">
+          <h3 className="text-xl font-head text-muted-foreground">
             Select a lesson to start learning
           </h3>
         </div>
@@ -233,7 +233,7 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
       ref={scrollRef}
       className={cn("flex h-full flex-col gap-6 bg-background p-6 overflow-y-auto", className)}
     >
-      <div className="h-1 w-full bg-primary" />
+      <div className="h-px w-full bg-border" />
 
       <div className="sticky top-4 z-20">
         <div
@@ -243,7 +243,7 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
           )}
         >
           {isVideo ? (
-            <Card className="aspect-video w-full overflow-hidden border-2 border-black bg-black p-0 shadow-xl rounded-lg">
+            <Card className="aspect-video w-full overflow-hidden bg-black p-0 shadow-xl">
               <VideoPlayer
                 lesson={lesson}
                 onProgress={handleProgress}
@@ -254,7 +254,7 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
               />
             </Card>
           ) : (
-            <Card className="h-full w-full overflow-hidden border-2 border-black bg-background p-0 shadow-xl rounded-lg">
+            <Card className="h-full w-full overflow-hidden bg-background p-0 shadow-xl">
               <ContentViewer lesson={lesson} onNext={onNext} onPrevious={onPrevious} />
             </Card>
           )}
@@ -262,22 +262,22 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
       </div>
 
       {showTranscript && (
-        <div className="rounded-lg border-2 border-black bg-background">
-          <div className="flex items-center justify-between border-b-2 border-black px-4 py-3">
-            <h3 className="font-head font-bold">transcript</h3>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-sm font-medium text-muted-foreground">transcript</CardTitle>
             {transcriptLabel ? (
-              <Badge className="bg-primary text-primary-foreground border-2 border-black font-bold uppercase">
+              <Badge variant="secondary" className="uppercase">
                 {transcriptLabel}
               </Badge>
             ) : (
-              <Badge variant="outline" className="text-xs border-2 border-black">
+              <Badge variant="outline" className="text-xs">
                 auto
               </Badge>
             )}
-          </div>
-          <div ref={transcriptRef} className="max-h-[320px] overflow-y-auto p-4 space-y-3">
+          </CardHeader>
+          <CardContent ref={transcriptRef} className="max-h-[320px] overflow-y-auto space-y-3">
             {transcriptError && (
-              <p className="text-sm text-destructive font-bold">{transcriptError}</p>
+              <p className="text-sm text-destructive">{transcriptError}</p>
             )}
             {!transcriptError && transcript.length === 0 && (
               <p className="text-sm text-muted-foreground italic">no transcript found.</p>
@@ -291,9 +291,9 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
                   data-cue-index={index}
                   onClick={() => setSeekTo(cue.start)}
                   className={cn(
-                    "w-full text-left rounded-md border-2 border-transparent px-3 py-2 transition-colors",
+                    "w-full text-left rounded-md border border-transparent px-3 py-2 transition-colors",
                     isActiveCue
-                      ? "bg-primary/20 border-primary font-bold"
+                      ? "bg-primary/15 border-primary"
                       : "hover:bg-muted/50"
                   )}
                 >
@@ -307,19 +307,19 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
                 </button>
               )
             })}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       <div className="space-y-4">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-head font-black mb-2 leading-tight">{lesson.name}</h1>
+            <h1 className="text-3xl font-head mb-2 leading-tight">{lesson.name}</h1>
             <div className="flex gap-2 flex-wrap">
-              <Badge className="bg-primary text-primary-foreground border-2 border-black font-bold">
+              <Badge variant="secondary">
                 {lesson.sectionName || "module"}
               </Badge>
-              <Badge variant="outline" className="bg-secondary font-bold uppercase tracking-wider">
+              <Badge variant="outline" className="uppercase tracking-wider text-foreground">
                 {lesson.type}
               </Badge>
             </div>
@@ -343,7 +343,6 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
             <Button
               onClick={onNext}
               disabled={!onNext}
-              className="bg-primary text-primary-foreground hover:bg-primary/80"
             >
               next lesson
             </Button>
