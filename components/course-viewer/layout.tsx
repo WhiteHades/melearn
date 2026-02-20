@@ -66,7 +66,7 @@ export function CourseViewerLayout({
   }
 
   const handleNextLesson = () => {
-    if (!course || !currentLessonId) return 
+    if (!course || !currentLessonId) return
 
     for (let i = 0; i < course.sections.length; i++) {
       const section = course.sections[i]
@@ -92,7 +92,7 @@ export function CourseViewerLayout({
   }
 
   const handlePrevLesson = () => {
-    if (!course || !currentLessonId) return 
+    if (!course || !currentLessonId) return
 
     for (let i = 0; i < course.sections.length; i++) {
         const section = course.sections[i]
@@ -119,48 +119,46 @@ export function CourseViewerLayout({
   }
 
   return (
-    <div className="h-full w-full bg-background overflow-hidden text-foreground font-sans">
+    <div className="h-full w-full bg-background text-foreground">
       <ResizablePanelGroup
         orientation="horizontal"
         className="h-full w-full"
         id="course-viewer-layout"
       >
-        
         <ResizablePanel
           defaultSize={20}
-          minSize={10}
+          minSize={12}
           collapsible={true}
           className="bg-sidebar min-h-0 min-w-0 overflow-hidden"
         >
-          <Sidebar 
-              onBack={onBack} 
-              course={course} 
-              currentLessonId={currentLesson?.id}
-              onSelectLesson={handleLessonSelect} 
+          <Sidebar
+            onBack={onBack}
+            course={course}
+            currentLessonId={currentLesson?.id}
+            onSelectLesson={handleLessonSelect}
           />
         </ResizablePanel>
-        
+
         <ResizableHandle withHandle className="w-px bg-border" />
 
         <ResizablePanel defaultSize={55} minSize={20} className="bg-background min-h-0 min-w-0">
-          <VideoArea 
-              lesson={currentLesson} 
-              onNext={handleNextLesson}
-              onPrevious={handlePrevLesson}
+          <VideoArea
+            lesson={currentLesson}
+            onNext={handleNextLesson}
+            onPrevious={handlePrevLesson}
           />
         </ResizablePanel>
-        
+
         <ResizableHandle withHandle className="w-px bg-border" />
 
         <ResizablePanel
           defaultSize={25}
-          minSize={10}
+          minSize={12}
           collapsible={true}
           className="bg-background min-h-0 min-w-0"
         >
-          <NotesPanel lesson={currentLesson} /> 
+          <NotesPanel lesson={currentLesson} />
         </ResizablePanel>
-
       </ResizablePanelGroup>
     </div>
   )
