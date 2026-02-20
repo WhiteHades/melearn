@@ -103,7 +103,7 @@ export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps
   if ((isPdf || isHtml) && assetSrc) {
     return (
       <div className="flex flex-col bg-background">
-        <div className="flex items-center justify-between border-b px-4 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2">
           <div className="flex items-center gap-2">
             {getIcon()}
             <span className="font-medium">{lesson.name}</span>
@@ -130,7 +130,7 @@ export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps
   if (isMarkdown && content) {
     return (
       <div className="flex flex-col bg-background">
-        <div className="flex items-center justify-between border-b px-4 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2">
           <div className="flex items-center gap-2">
             {getIcon()}
             <span className="font-medium">{lesson.name}</span>
@@ -165,7 +165,7 @@ export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps
   if (isTextFile && content) {
     return (
       <div className="flex flex-col bg-background">
-        <div className="flex items-center justify-between border-b px-4 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2">
           <div className="flex items-center gap-2">
             {getIcon()}
             <span className="font-medium">{lesson.name}</span>

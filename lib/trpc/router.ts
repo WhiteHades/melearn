@@ -30,7 +30,7 @@ export const appRouter = t.router({
     markAccessed: t.procedure
       .input(z.object({ courseId: courseIdSchema }))
       .mutation(({ input }) => {
-        const { courses, setCourses, setCurrentCourse } = getStore()
+        const { courses, setCourses } = getStore()
         const updated = courses.map((course: Course) =>
           course.id === input.courseId
             ? { ...course, lastAccessed: new Date().toISOString() }
@@ -38,7 +38,6 @@ export const appRouter = t.router({
         )
         const current = updated.find((course: Course) => course.id === input.courseId) ?? null
         setCourses(updated)
-        setCurrentCourse(current)
         return current
       }),
   }),
@@ -51,7 +50,6 @@ export const appRouter = t.router({
         const store = getStore()
         store.setCourses(courses)
         store.setLibraryPath(input.path)
-        store.setScanResult(result)
         indexCourses(courses)
         return { courses, warnings: result.warnings }
       }),

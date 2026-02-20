@@ -215,9 +215,9 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
   if (!lesson) {
     return (
       <div className={cn("flex h-full flex-col bg-background p-6 items-center justify-center text-center", className)}>
-        <div className="p-8 border border-dashed border-muted-foreground/40 rounded-xl">
+        <div className="rounded-2xl border border-dashed border-border bg-card/60 px-8 py-10">
           <h3 className="text-xl font-head text-muted-foreground">
-            Select a lesson to start learning
+            select a lesson to start learning
           </h3>
         </div>
       </div>
@@ -226,20 +226,19 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
 
   const isVideo = lesson.type === "video"
 
-  const showTranscript = isVideo && (transcript.length > 0 || transcriptError || lesson.subtitles.length > 0)
+  const showTranscript =
+    isVideo && (transcript.length > 0 || transcriptError || lesson.subtitles.length > 0)
 
   return (
     <div
       ref={scrollRef}
-      className={cn("flex h-full flex-col gap-6 bg-background p-6 overflow-y-auto", className)}
+      className={cn("flex h-full flex-col gap-6 bg-background px-6 pb-10 pt-6 overflow-y-auto", className)}
     >
-      <div className="h-px w-full bg-border" />
-
       <div className="sticky top-4 z-20">
         <div
           className={cn(
             "mx-auto w-full transition-all duration-300",
-            isCompact ? "max-w-[820px] scale-[0.92] origin-top" : "max-w-[1040px]"
+            isCompact ? "max-w-[820px] scale-[0.94] origin-top" : "max-w-[1040px]"
           )}
         >
           {isVideo ? (
@@ -312,7 +311,7 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
       )}
 
       <div className="space-y-4">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="text-3xl font-head mb-2 leading-tight">{lesson.name}</h1>
             <div className="flex gap-2 flex-wrap">

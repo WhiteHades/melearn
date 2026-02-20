@@ -46,29 +46,6 @@ export interface Note {
   createdAt: string
 }
 
-export interface Bookmark {
-  id: string
-  lessonId: string
-  timestamp: number
-  label: string
-  createdAt: string
-}
-
-export interface Settings {
-  libraryPaths: string[]
-  theme: string
-  playbackSpeed: number
-  volume: number
-  autoplay: boolean
-  skipIntro: boolean
-}
-
-export interface ScanResult {
-  scan_type: "library" | "singlecourse" | "bundle"
-  courses: Course[]
-  warnings: string[]
-}
-
 export type FileType = "video" | "audio" | "document" | "subtitle" | "quiz" | "unknown"
 
 export const VIDEO_EXTENSIONS = [".mp4", ".mkv", ".webm", ".mov", ".avi", ".m4v"]

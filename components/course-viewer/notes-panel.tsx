@@ -75,7 +75,6 @@ export function NotesPanel({ className, lesson }: NotesPanelProps) {
 
   return (
     <div className={cn("flex h-full flex-col bg-background", className)}>
-      <div className="h-px w-full bg-border" />
       <Tabs defaultValue="notes" className="flex-1 flex flex-col">
         <div className="border-b border-border bg-muted/30 px-4">
           <TabsList className="h-12 w-full justify-start gap-2 bg-transparent">
@@ -123,41 +122,41 @@ export function NotesPanel({ className, lesson }: NotesPanelProps) {
               </Button>
             </form>
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">saved notes</p>
-                  <span className="text-xs text-muted-foreground">{notes.length}</span>
-                </div>
-                {notes.length === 0 ? (
-                  <p className="text-xs text-muted-foreground italic">no notes yet</p>
-                ) : (
-                  <div className="space-y-3">
-                    {notes.map((note: Note) => (
-                      <div
-                        key={note.id}
-                        className="rounded-md border border-border bg-background p-3"
-                      >
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span className="font-mono">{formatDuration(note.timestamp)}</span>
-                          <span>{formatTimestamp(note.createdAt)}</span>
-                        </div>
-                        <p className="mt-2 text-sm whitespace-pre-wrap">{note.text}</p>
-                        <div className="mt-3 flex justify-end">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeNote.mutate({ noteId: note.id })}
-                            disabled={removeNote.isPending}
-                          >
-                            delete
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">saved notes</p>
+                <span className="text-xs text-muted-foreground">{notes.length}</span>
               </div>
+              {notes.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic">no notes yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {notes.map((note: Note) => (
+                    <div
+                      key={note.id}
+                      className="rounded-md border border-border bg-background p-3"
+                    >
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span className="font-mono">{formatDuration(note.timestamp)}</span>
+                        <span>{formatTimestamp(note.createdAt)}</span>
+                      </div>
+                      <p className="mt-2 text-sm whitespace-pre-wrap">{note.text}</p>
+                      <div className="mt-3 flex justify-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeNote.mutate({ noteId: note.id })}
+                          disabled={removeNote.isPending}
+                        >
+                          delete
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="resources" className="h-full p-4 m-0 mt-0">

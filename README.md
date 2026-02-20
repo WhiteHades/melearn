@@ -6,7 +6,7 @@ modern offline course viewer with a tauri desktop app.
 
 - scan and organize local video courses
 - custom video player with keyboard shortcuts
-- timestamped notes and bookmarks
+- timestamped notes
 - command palette search (cmd+k)
 - analytics dashboard with progress tracking
 - retro ui themes
@@ -14,7 +14,7 @@ modern offline course viewer with a tauri desktop app.
 
 ## tech stack
 
-- frontend: next.js 16, react 19, tailwind css 4, retroui components
+- frontend: next.js 16, react 19, tailwind css 4, shadcn ui components
 - data: trpc, @tanstack/react-query
 - forms: react-hook-form, zod
 - state: zustand with persist

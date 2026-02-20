@@ -76,7 +76,7 @@ export function CommandPalette({ onSelectCourse, onSelectLesson }: CommandPalett
 
   return (
     <>
-      <p className="fixed bottom-4 right-4 text-xs text-muted-foreground hidden lg:block">
+      <p className="fixed bottom-4 right-4 hidden text-xs text-muted-foreground lg:block">
         Press{" "}
         <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
           <span className="text-xs">⌘</span>K
@@ -94,13 +94,11 @@ export function CommandPalette({ onSelectCourse, onSelectLesson }: CommandPalett
 
           {deferredQuery.trim().length === 0 ? (
             <CommandGroup heading="suggestions">
-              <CommandItem onSelect={() => setQuery("courses")}
-              >
+              <CommandItem onSelect={() => setQuery("courses")}>
                 <Search className="mr-2 h-4 w-4" />
                 <span>search courses</span>
               </CommandItem>
-              <CommandItem onSelect={() => setQuery("lessons")}
-              >
+              <CommandItem onSelect={() => setQuery("lessons")}>
                 <BookOpen className="mr-2 h-4 w-4" />
                 <span>browse library</span>
               </CommandItem>

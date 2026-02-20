@@ -31,10 +31,6 @@ export async function scanFolder(path: string): Promise<ScanResult> {
   return invoke<ScanResult>("scan_folder", { path })
 }
 
-export async function getFileInfo(path: string): Promise<FileEntry> {
-  return invoke<FileEntry>("get_file_info", { path })
-}
-
 export async function selectFolderDialog(): Promise<string | null> {
   const result = await open({
     directory: true,
@@ -47,4 +43,3 @@ export async function selectFolderDialog(): Promise<string | null> {
 export function isTauri(): boolean {
   return tauriIsTauri()
 }
-

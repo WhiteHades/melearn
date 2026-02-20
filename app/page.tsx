@@ -79,50 +79,55 @@ export default function Home() {
   }, [setViewParam, setCourseId, setLessonId])
 
   return (
-    <main className="relative h-full bg-background text-foreground font-sans selection:bg-primary/20 selection:text-foreground bg-[radial-gradient(120%_80%_at_50%_0%,_rgba(255,255,255,0.7)_0%,_transparent_60%)] dark:bg-[radial-gradient(120%_80%_at_50%_0%,_rgba(255,255,255,0.08)_0%,_transparent_65%)]">
+    <main className="app-shell relative h-full bg-background text-foreground font-sans selection:bg-primary/15 selection:text-foreground">
       <div className="relative z-10 flex h-full flex-col">
         {view === "library" || view === "stats" ? (
           <div className="flex h-full flex-col">
-            <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-head tracking-tight">melearn</h1>
-                  <span className="hidden md:inline-flex items-center rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                    offline course hub
-                  </span>
+            <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
+              <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:py-3">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+                      <span className="font-head text-sm tracking-tight">ml</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <h1 className="text-lg font-head leading-none">melearn</h1>
+                      <span className="text-xs text-muted-foreground">offline course hub</span>
+                    </div>
+                  </div>
+                  <nav className="flex items-center gap-1 rounded-lg bg-muted/70 p-1">
+                    <Button
+                      variant={view === "library" ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewParam("library")}
+                      className="h-8 gap-2 px-3"
+                    >
+                      <Library className="h-4 w-4" /> library
+                    </Button>
+                    <Button
+                      variant={view === "stats" ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewParam("stats")}
+                      className="h-8 gap-2 px-3"
+                    >
+                      <BarChart2 className="h-4 w-4" /> stats
+                    </Button>
+                  </nav>
                 </div>
-                <nav className="flex items-center gap-2 ml-4">
-                  <Button
-                    variant={view === "library" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewParam("library")}
-                    className="gap-2"
-                  >
-                    <Library className="h-4 w-4" /> library
-                  </Button>
-                  <Button
-                    variant={view === "stats" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewParam("stats")}
-                    className="gap-2"
-                  >
-                    <BarChart2 className="h-4 w-4" /> stats
-                  </Button>
-                </nav>
-              </div>
-              <div className="flex items-center gap-3">
-                {view === "library" && (
-                  <>
-                    <div className="relative hidden sm:block">
+                <div className="flex w-full flex-1 items-center gap-3 sm:w-auto sm:flex-initial">
+                  {view === "library" && (
+                    <div className="relative flex-1 sm:w-64">
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
                         type="search"
                         placeholder="search courses..."
                         value={searchQuery}
                         onChange={(event) => setSearchQuery(event.target.value)}
-                        className="h-9 w-64 pl-9"
+                        className="h-9 w-full bg-card pl-9"
                       />
                     </div>
+                  )}
+                  {view === "library" && (
                     <div className="flex items-center gap-1 rounded-md border border-border bg-muted/60 p-1">
                       <Button
                         size="icon-sm"
@@ -141,12 +146,12 @@ export default function Home() {
                         <List className="size-4" />
                       </Button>
                     </div>
-                  </>
-                )}
-                <ThemeToggle />
+                  )}
+                  <ThemeToggle />
+                </div>
               </div>
             </header>
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto px-4 pb-8 pt-6">
               <div className="mx-auto max-w-7xl">
                 {view === "library" ? (
                   <CourseGrid

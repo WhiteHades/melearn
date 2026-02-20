@@ -39,13 +39,13 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className="rounded-full border border-border bg-card">
           <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:rotate-90 dark:scale-0" />
           <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           <span className="sr-only">toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-44">
         <DropdownMenuLabel className="text-xs text-muted-foreground">
           mode
         </DropdownMenuLabel>
@@ -60,7 +60,7 @@ export function ThemeToggle() {
         </DropdownMenuLabel>
         {colorThemes.map((t) => (
           <DropdownMenuItem key={t.value} onClick={() => setColor(t.value)}>
-             <div className="mr-2 h-3 w-3 rounded-full border border-border" style={{ backgroundColor: t.color }} />
+            <div className="mr-2 h-3 w-3 rounded-full border border-border" style={{ backgroundColor: t.color }} />
             {t.label}
           </DropdownMenuItem>
         ))}
