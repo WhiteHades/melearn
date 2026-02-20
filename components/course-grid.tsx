@@ -82,12 +82,12 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
 
   if (courses.length === 0 && !isScanning) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
-        <div className="flex size-16 items-center justify-center rounded-full border border-border bg-muted">
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border bg-card/60 p-8 text-center">
+        <div className="flex size-16 items-center justify-center rounded-2xl border border-border bg-muted">
           <FolderOpen className="size-8 text-muted-foreground" />
         </div>
-        <div className="text-center">
-          <h2 className="text-lg font-head font-bold">no courses yet</h2>
+        <div>
+          <h2 className="text-lg font-head font-semibold">no courses yet</h2>
           <p className="mt-1 text-sm text-muted-foreground font-sans">
             select a folder containing your courses to get started
           </p>
@@ -116,7 +116,7 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
       : "grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
+    <div className="flex flex-1 flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-head">your courses</h2>
@@ -140,13 +140,13 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
       </div>
       
       {error && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {normalizedQuery && visibleCourses.length === 0 ? (
-        <div className="rounded-md border border-border bg-muted/40 p-6 text-center">
+        <div className="rounded-xl border border-border bg-card/60 p-6 text-center">
           <p className="text-sm font-medium">no matches for "{normalizedQuery}"</p>
           <p className="mt-1 text-xs text-muted-foreground">try a different search term</p>
         </div>
