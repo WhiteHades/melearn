@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import { motion } from "motion/react"
 import { CourseCard } from "@/components/course-card"
-import { Button } from "@/components/retroui/Button"
+import { Button } from "@/components/ui/button"
 import { useCourseStore } from "@/lib/stores/course-store"
 import { selectFolderDialog, isTauri } from "@/lib/tauri"
 import { searchCourses } from "@/lib/search"
@@ -83,7 +83,7 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
   if (courses.length === 0 && !isScanning) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
-        <div className="flex size-16 items-center justify-center rounded-full bg-muted border-2 border-black">
+        <div className="flex size-16 items-center justify-center rounded-full border border-border bg-muted">
           <FolderOpen className="size-8 text-muted-foreground" />
         </div>
         <div className="text-center">
@@ -92,7 +92,7 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
             select a folder containing your courses to get started
           </p>
         </div>
-        <Button onClick={handleSelectFolder} disabled={isScanning} className="font-bold border-2 border-black shadow-md">
+        <Button onClick={handleSelectFolder} disabled={isScanning} className="font-semibold">
           {isScanning ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
@@ -105,7 +105,7 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
             </>
           )}
         </Button>
-        {error && <p className="text-sm text-destructive font-bold">{error}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
     )
   }
@@ -117,22 +117,22 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-head font-bold">your courses</h2>
+          <h2 className="text-lg font-head">your courses</h2>
           <p className="text-sm text-muted-foreground font-sans">
-            <span className="mr-2 inline-flex items-center rounded-full border-2 border-black bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
+            <span className="mr-2 inline-flex items-center rounded-full border border-border bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
               {visibleCourses.length}
             </span>
             course{visibleCourses.length !== 1 ? "s" : ""} found
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={isScanning} className="border-2 border-black">
+          <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={isScanning}>
             <RefreshCw className={`mr-2 size-4 ${isScanning ? "animate-spin" : ""}`} />
             refresh
           </Button>
-          <Button variant="secondary" size="sm" onClick={handleSelectFolder} disabled={isScanning} className="border-2 border-black">
+          <Button variant="secondary" size="sm" onClick={handleSelectFolder} disabled={isScanning}>
             <FolderOpen className="mr-2 size-4" />
             change folder
           </Button>
@@ -140,14 +140,14 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
       </div>
       
       {error && (
-        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive font-bold border-2 border-destructive">
+        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {normalizedQuery && visibleCourses.length === 0 ? (
-        <div className="rounded-md border-2 border-black bg-muted/30 p-6 text-center">
-          <p className="text-sm font-bold">no matches for "{normalizedQuery}"</p>
+        <div className="rounded-md border border-border bg-muted/40 p-6 text-center">
+          <p className="text-sm font-medium">no matches for "{normalizedQuery}"</p>
           <p className="mt-1 text-xs text-muted-foreground">try a different search term</p>
         </div>
       ) : (
