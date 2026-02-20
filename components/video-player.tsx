@@ -2,14 +2,14 @@
 
 import { useRef, useState, useEffect, useCallback, memo } from "react"
 import { invoke } from "@tauri-apps/api/core"
-import { Button } from "@/components/retroui/Button"
-import { Slider } from "@/components/retroui/Slider"
+import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/retroui/DropdownMenu"
+} from "@/components/ui/dropdown-menu"
 import { cn, formatDuration } from "@/lib/utils"
 import { isTauri } from "@/lib/tauri"
 import type { Lesson } from "@/types"
@@ -251,7 +251,7 @@ function VideoPlayerComponent({
   }
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="group relative flex aspect-video w-full flex-col bg-black overflow-hidden rounded-md shadow-lg ring-1 ring-white/10"
       onMouseMove={handleMouseMove}
@@ -355,21 +355,21 @@ function VideoPlayerComponent({
           </div>
 
           <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-white hover:bg-white/20">
-                  <span className="text-xs font-bold">{speed}x</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-20 min-w-20">
-                {SPEEDS.map((s) => (
-                  <DropdownMenuItem key={s} onClick={() => changeSpeed(s)}>
-                    {speed === s && <Check className="mr-2 size-3" />}
-                    {s}x
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-white hover:bg-white/20">
+                    <span className="text-xs font-bold">{speed}x</span>
+                  </Button>
+                </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-20 min-w-20 bg-black text-white border-white/10 [&_[data-highlighted]]:bg-white/10 [&_[data-highlighted]]:text-white">
+            {SPEEDS.map((s) => (
+              <DropdownMenuItem key={s} onClick={() => changeSpeed(s)}>
+                {speed === s && <Check className="mr-2 size-3" />}
+                {s}x
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
             <Button variant="ghost" size="icon-sm" onClick={toggleFullscreen} className="text-white hover:bg-white/20" aria-label={isFullscreen ? "exit fullscreen" : "fullscreen"}>
               {isFullscreen ? <Minimize className="size-5" aria-hidden="true" /> : <Maximize className="size-5" aria-hidden="true" />}
