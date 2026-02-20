@@ -9,7 +9,7 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/retroui/Resizable"
+} from "@/components/ui/resizable"
 
 interface CourseViewerLayoutProps {
   course: Course | null
@@ -122,7 +122,7 @@ export function CourseViewerLayout({
     <div className="h-full w-full bg-background overflow-hidden text-foreground font-sans">
       <ResizablePanelGroup
         orientation="horizontal"
-        className="h-full w-full rounded-md border border-border"
+        className="h-full w-full"
         id="course-viewer-layout"
       >
         
@@ -140,7 +140,7 @@ export function CourseViewerLayout({
           />
         </ResizablePanel>
         
-        <ResizableHandle className="w-px bg-border" />
+        <ResizableHandle withHandle className="w-px bg-border" />
 
         <ResizablePanel defaultSize={55} minSize={20} className="bg-background min-h-0 min-w-0">
           <VideoArea 
@@ -150,7 +150,7 @@ export function CourseViewerLayout({
           />
         </ResizablePanel>
         
-        <ResizableHandle className="w-px bg-border" />
+        <ResizableHandle withHandle className="w-px bg-border" />
 
         <ResizablePanel
           defaultSize={25}
