@@ -9,7 +9,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/retroui/Command"
+} from "@/components/ui/command"
 import { trpc } from "@/lib/trpc/client"
 import type { Course, Lesson, Section } from "@/types"
 import { BookOpen, Search, Video } from "lucide-react"
@@ -76,9 +76,9 @@ export function CommandPalette({ onSelectCourse, onSelectLesson }: CommandPalett
 
   return (
     <>
-      <p className="fixed bottom-4 right-4 text-sm text-muted-foreground hidden lg:block">
+      <p className="fixed bottom-4 right-4 text-xs text-muted-foreground hidden lg:block">
         Press{" "}
-        <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border-2 border-black bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+        <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
           <span className="text-xs">⌘</span>K
         </kbd>
       </p>
@@ -89,7 +89,7 @@ export function CommandPalette({ onSelectCourse, onSelectLesson }: CommandPalett
           value={query}
           onValueChange={setQuery}
         />
-        <CommandList className="font-sans border-t-2 border-black">
+        <CommandList className="font-sans">
           <CommandEmpty>No results found.</CommandEmpty>
 
           {deferredQuery.trim().length === 0 ? (
