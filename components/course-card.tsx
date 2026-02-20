@@ -31,7 +31,7 @@ export function CourseCard({ course, onClick, layout = "grid" }: CourseCardProps
     : "never opened"
 
   const progressBadge = (
-    <Badge variant="outline" className="font-mono">
+    <Badge variant="outline" className="font-mono text-[11px]">
       {progress}%
     </Badge>
   )
@@ -49,16 +49,15 @@ export function CourseCard({ course, onClick, layout = "grid" }: CourseCardProps
     return (
       <Card
         className={cn(
-          "cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5",
+          "cursor-pointer border-border/60 bg-card/80 transition-all hover:-translate-y-0.5 hover:border-border/90 hover:shadow-lg",
           "p-0"
         )}
         onClick={onClick}
       >
-        <div className="h-px w-full bg-border" />
         <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center">
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3">
-              <h3 className="line-clamp-2 text-base font-head">
+              <h3 className="line-clamp-2 text-base font-head leading-snug">
                 {course.name}
               </h3>
               {progressBadge}
@@ -97,14 +96,13 @@ export function CourseCard({ course, onClick, layout = "grid" }: CourseCardProps
   return (
     <Card
       className={cn(
-        "cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5",
+        "cursor-pointer border-border/60 bg-card/80 transition-all hover:-translate-y-0.5 hover:border-border/90 hover:shadow-lg",
         "flex h-full min-h-[260px] flex-col"
       )}
       onClick={onClick}
     >
-      <div className="h-px w-full bg-border" />
       <CardHeader className="pb-2 min-h-[72px]">
-        <CardTitle className="line-clamp-2 text-base font-head">
+        <CardTitle className="line-clamp-2 text-base font-head leading-snug">
           {course.name}
         </CardTitle>
       </CardHeader>
@@ -129,7 +127,7 @@ export function CourseCard({ course, onClick, layout = "grid" }: CourseCardProps
           last opened {lastAccessedLabel}
         </div>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 pt-2 border-t border-border/50">
+      <CardFooter className="flex-col items-start gap-2 border-t border-border/60 pt-2">
         <div className="flex w-full items-center justify-between text-sm">
           <span className="text-muted-foreground font-semibold">progress</span>
           {progressBadge}
