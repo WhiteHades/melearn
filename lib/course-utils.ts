@@ -113,38 +113,3 @@ export function calculateCourseProgress(course: Course): number {
   const completed = lessons.filter((l) => l.completed).length
   return Math.round((completed / lessons.length) * 100)
 }
-
-export function getTotalLessons(course: Course): number {
-  return course.sections.reduce((sum, s) => sum + s.lessons.length, 0)
-}
-
-export function getCompletedLessons(course: Course): number {
-  return course.sections.reduce(
-    (sum, s) => sum + s.lessons.filter((l) => l.completed).length,
-    0
-  )
-}
-
-export function findLessonById(courses: Course[], lessonId: string): Lesson | null {
-  for (const course of courses) {
-    for (const section of course.sections) {
-      const lesson = section.lessons.find((l) => l.id === lessonId)
-      if (lesson) return lesson
-    }
-  }
-  return null
-}
-
-export function findNextLesson(course: Course, currentLessonId: string): Lesson | null {
-  const allLessons = course.sections.flatMap((s) => s.lessons)
-  const currentIndex = allLessons.findIndex((l) => l.id === currentLessonId)
-  if (currentIndex === -1 || currentIndex >= allLessons.length - 1) return null
-  return allLessons[currentIndex + 1]
-}
-
-export function findPreviousLesson(course: Course, currentLessonId: string): Lesson | null {
-  const allLessons = course.sections.flatMap((s) => s.lessons)
-  const currentIndex = allLessons.findIndex((l) => l.id === currentLessonId)
-  if (currentIndex <= 0) return null
-  return allLessons[currentIndex - 1]
-}
