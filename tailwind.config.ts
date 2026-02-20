@@ -23,7 +23,6 @@ const config: Config = {
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
-          hover: "var(--primary-hover)",
         },
         secondary: {
           DEFAULT: "var(--secondary)",
@@ -60,13 +59,19 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      boxShadow: {
-        xs: "1px 1px 0 0 var(--border)",
-        sm: "2px 2px 0 0 var(--border)",
-        DEFAULT: "3px 3px 0 0 var(--border)",
-        md: "4px 4px 0 0 var(--border)",
-        lg: "6px 6px 0 0 var(--border)",
-        xl: "10px 10px 0 1px var(--border)",
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
