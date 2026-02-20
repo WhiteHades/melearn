@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import { Button } from "@/components/retroui/Button"
+import { Button } from "@/components/ui/button"
 import { useThemeStore } from "@/lib/stores/theme-store"
 import {
   DropdownMenu,
@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-} from "@/components/retroui/DropdownMenu"
+} from "@/components/ui/dropdown-menu"
 
 const themes = [
   { value: "light", label: "light" },
