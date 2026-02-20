@@ -253,7 +253,7 @@ function VideoPlayerComponent({
   return (
     <div
       ref={containerRef}
-      className="group relative flex aspect-video w-full flex-col bg-black overflow-hidden rounded-md shadow-lg ring-1 ring-white/10"
+      className="group relative flex aspect-video w-full flex-col overflow-hidden rounded-xl bg-black shadow-lg ring-1 ring-white/10"
       onMouseMove={handleMouseMove}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
@@ -303,10 +303,10 @@ function VideoPlayerComponent({
       )}
 
       <div
-        className={cn(
-          "absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-black/90 to-transparent p-4 transition-opacity duration-300",
-          showControls || !isPlaying ? "opacity-100" : "opacity-0"
-        )}
+         className={cn(
+           "absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-black/90 to-transparent p-4 transition-opacity duration-300",
+           showControls || !isPlaying ? "opacity-100" : "opacity-0"
+         )}
       >
         <Slider
           value={[currentTime]}
