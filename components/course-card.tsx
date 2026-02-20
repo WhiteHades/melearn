@@ -1,5 +1,11 @@
-import { Card } from "@/components/retroui/Card"
-import { Badge } from "@/components/retroui/Badge"
+import { Badge } from "@/components/ui/badge"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { cn, formatDuration } from "@/lib/utils"
 import type { Course } from "@/types"
 import { formatDistanceToNow } from "date-fns"
@@ -25,18 +31,15 @@ export function CourseCard({ course, onClick, layout = "grid" }: CourseCardProps
     : "never opened"
 
   const progressBadge = (
-    <Badge
-      variant="outline"
-      className="font-mono bg-secondary font-bold text-foreground border-2 border-black"
-    >
+    <Badge variant="outline" className="font-mono">
       {progress}%
     </Badge>
   )
 
   const progressBar = (
-    <div className="h-3 w-full border-2 border-black bg-muted rounded-full overflow-hidden relative">
+    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
       <div
-        className="h-full bg-primary transition-all duration-300 ease-in-out border-r-2 border-black"
+        className="h-full bg-primary transition-all duration-300 ease-in-out"
         style={{ width: `${progress}%` }}
       />
     </div>
@@ -46,16 +49,16 @@ export function CourseCard({ course, onClick, layout = "grid" }: CourseCardProps
     return (
       <Card
         className={cn(
-          "cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 bg-card border-2 border-border shadow-md overflow-hidden",
+          "cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5",
           "p-0"
         )}
         onClick={onClick}
       >
-        <div className="h-2 w-full bg-primary border-b-2 border-black" />
-        <div className="flex flex-col gap-4 p-4 md:flex-row md:items-center">
+        <div className="h-px w-full bg-border" />
+        <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center">
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3">
-              <h3 className="line-clamp-2 text-base font-head font-bold">
+              <h3 className="line-clamp-2 text-base font-head">
                 {course.name}
               </h3>
               {progressBadge}
@@ -94,18 +97,18 @@ export function CourseCard({ course, onClick, layout = "grid" }: CourseCardProps
   return (
     <Card
       className={cn(
-        "cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 bg-card border-2 border-border shadow-md overflow-hidden",
+        "cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5",
         "flex h-full min-h-[260px] flex-col"
       )}
       onClick={onClick}
     >
-      <div className="h-2 w-full bg-primary border-b-2 border-black" />
-      <Card.Header className="pb-2 min-h-[72px]">
-        <Card.Title className="line-clamp-2 text-base font-head font-bold">
+      <div className="h-px w-full bg-border" />
+      <CardHeader className="pb-2 min-h-[72px]">
+        <CardTitle className="line-clamp-2 text-base font-head">
           {course.name}
-        </Card.Title>
-      </Card.Header>
-      <Card.Content className="pb-2 flex-1">
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pb-2 flex-1">
         <div className="flex items-center gap-4 text-sm text-muted-foreground font-sans">
           <div className="flex items-center gap-1">
             <BookOpen className="size-4" />
@@ -125,17 +128,17 @@ export function CourseCard({ course, onClick, layout = "grid" }: CourseCardProps
         <div className="mt-2 text-xs text-muted-foreground font-sans">
           last opened {lastAccessedLabel}
         </div>
-      </Card.Content>
-      <Card.Footer className="flex-col items-start gap-2 pt-2 border-t-2 border-border/10">
+      </CardContent>
+      <CardFooter className="flex-col items-start gap-2 pt-2 border-t border-border/50">
         <div className="flex w-full items-center justify-between text-sm">
-          <span className="text-muted-foreground font-bold">progress</span>
+          <span className="text-muted-foreground font-semibold">progress</span>
           {progressBadge}
         </div>
         {progressBar}
         <div className="text-xs text-muted-foreground font-sans">
           {completedLessons} / {totalLessons} lessons completed
         </div>
-      </Card.Footer>
+      </CardFooter>
     </Card>
   )
 }
