@@ -31,7 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="theme-yellow" suppressHydrationWarning>
-      <body className={`${archivoBlack.variable} ${space.variable} font-sans flex flex-col h-screen overflow-hidden`}>
+      <body className={`${archivoBlack.variable} ${space.variable} font-sans flex flex-col h-screen overflow-hidden antialiased`}>
         <AppProviders>
           <ThemeWrapper>
             <TitleBar />
