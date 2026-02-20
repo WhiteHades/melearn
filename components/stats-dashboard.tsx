@@ -15,8 +15,21 @@ import {
   Pie,
   Cell,
 } from "recharts"
-import { Card } from "@/components/retroui/Card"
-import { Badge } from "@/components/retroui/Badge"
+import { Badge } from "@/components/ui/badge"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { formatDuration } from "@/lib/utils"
 import { trpc } from "@/lib/trpc/client"
 import { calculateCourseProgress } from "@/lib/course-utils"
@@ -31,7 +44,7 @@ type CourseRow = {
   duration: string
 }
 
-const COLORS = ["#ffdb33", "#000000"]
+const CHART_COLORS = ["var(--primary)", "var(--muted)"]
 
 export function StatsDashboard() {
   const { data: courses = [] } = trpc.courses.list.useQuery()
@@ -115,7 +128,7 @@ export function StatsDashboard() {
       {
         header: "course",
         accessorKey: "name",
-        cell: ({ row }) => <span className="font-bold">{row.original.name}</span>,
+        cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
       },
       { header: "sections", accessorKey: "sections" },
       { header: "lessons", accessorKey: "lessons" },
@@ -142,7 +155,7 @@ export function StatsDashboard() {
   if (courses.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center space-y-4">
-        <h2 className="text-2xl font-head font-bold">no stats yet</h2>
+        <h2 className="text-2xl font-head">no stats yet</h2>
         <p className="text-muted-foreground font-sans">
           add a course to unlock analytics.
         </p>
@@ -158,118 +171,109 @@ export function StatsDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <Card className="border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] overflow-hidden">
-          <div className="h-2 w-full bg-primary border-b-2 border-black" />
-          <Card.Header>
-            <Card.Title className="text-sm font-bold">courses</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <p className="text-3xl font-head font-black">{courses.length}</p>
-          </Card.Content>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-muted-foreground">courses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-head">{courses.length}</p>
+          </CardContent>
         </Card>
-        <Card className="border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] overflow-hidden">
-          <div className="h-2 w-full bg-primary border-b-2 border-black" />
-          <Card.Header>
-            <Card.Title className="text-sm font-bold">lessons</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <p className="text-3xl font-head font-black">{stats.totalLessons}</p>
-          </Card.Content>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-muted-foreground">lessons</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-head">{stats.totalLessons}</p>
+          </CardContent>
         </Card>
-        <Card className="border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] overflow-hidden">
-          <div className="h-2 w-full bg-primary border-b-2 border-black" />
-          <Card.Header>
-            <Card.Title className="text-sm font-bold">completed</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <p className="text-3xl font-head font-black">{stats.completedLessons}</p>
-          </Card.Content>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-muted-foreground">completed</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-head">{stats.completedLessons}</p>
+          </CardContent>
         </Card>
-        <Card className="border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] overflow-hidden">
-          <div className="h-2 w-full bg-primary border-b-2 border-black" />
-          <Card.Header>
-            <Card.Title className="text-sm font-bold">avg progress</Card.Title>
-          </Card.Header>
-          <Card.Content>
-            <p className="text-3xl font-head font-black">{stats.averageProgress}%</p>
-          </Card.Content>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-muted-foreground">avg progress</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-head">{stats.averageProgress}%</p>
+          </CardContent>
         </Card>
       </motion.div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2 border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] overflow-hidden">
-          <div className="h-2 w-full bg-primary border-b-2 border-black" />
-          <Card.Header>
-            <Card.Title className="text-sm font-bold">course progress</Card.Title>
-          </Card.Header>
-          <Card.Content className="h-[280px]">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-muted-foreground">course progress</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} barSize={32}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#000" opacity={0.2} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} />
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-15} height={50} />
                 <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip />
-                <Bar dataKey="progress" fill="#ffdb33" stroke="#000" strokeWidth={1} />
+                <Tooltip contentStyle={{ borderRadius: 8 }} />
+                <Bar dataKey="progress" fill="var(--primary)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </Card.Content>
+          </CardContent>
         </Card>
 
-        <Card className="border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] overflow-hidden">
-          <div className="h-2 w-full bg-primary border-b-2 border-black" />
-          <Card.Header>
-            <Card.Title className="text-sm font-bold">completion split</Card.Title>
-          </Card.Header>
-          <Card.Content className="h-[280px]">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-muted-foreground">completion split</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={completionData} dataKey="value" outerRadius={90} innerRadius={55} paddingAngle={2}>
                   {completionData.map((entry, index) => (
-                    <Cell key={`cell-${entry.name}`} fill={COLORS[index % COLORS.length]} stroke="#000" />
+                    <Cell key={`cell-${entry.name}`} fill={CHART_COLORS[index % CHART_COLORS.length]} stroke="var(--border)" />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip contentStyle={{ borderRadius: 8 }} />
               </PieChart>
             </ResponsiveContainer>
-          </Card.Content>
+          </CardContent>
         </Card>
       </div>
 
-      <Card className="border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] overflow-hidden">
-        <div className="h-2 w-full bg-primary border-b-2 border-black" />
-        <Card.Header>
-          <Card.Title className="text-sm font-bold">course table</Card.Title>
-        </Card.Header>
-        <Card.Content>
-          <div className="overflow-x-auto">
-            <table className="w-full border-2 border-black text-sm">
-              <thead className="bg-muted">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id} className="border-b-2 border-black">
-                    {headerGroup.headers.map((header) => (
-                      <th key={header.id} className="px-3 py-2 text-left font-bold">
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="border-b border-black/20">
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-3 py-2">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card.Content>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-muted-foreground">course table</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
       </Card>
     </div>
   )
