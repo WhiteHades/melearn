@@ -5,8 +5,8 @@ import { readTextFile } from "@tauri-apps/plugin-fs"
 import { convertFileSrc } from "@tauri-apps/api/core"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Button } from "@/components/retroui/Button"
-import { ScrollArea } from "@/components/retroui/ScrollArea"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { isTauri } from "@/lib/tauri"
 import type { Lesson } from "@/types"
 import { SkipBack, SkipForward, FileText, File, FileCode, ExternalLink, Code } from "lucide-react"
@@ -151,7 +151,7 @@ export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps
           {showRaw ? (
             <pre className="whitespace-pre-wrap p-4 font-mono text-sm">{content}</pre>
           ) : (
-            <div className="prose prose-invert max-w-none p-4">
+            <div className="prose max-w-none p-4 dark:prose-invert">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {content}
               </ReactMarkdown>
