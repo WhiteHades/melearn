@@ -16,13 +16,13 @@ export function TitleBar() {
     // Check initial maximize state if in Tauri
     if (isTauri()) {
       getCurrentWindow().isMaximized().then(setIsMaximized)
-      
+
       const unlisten = getCurrentWindow().listen("tauri://resize", async () => {
         setIsMaximized(await getCurrentWindow().isMaximized())
       })
 
       return () => {
-        unlisten.then(f => f())
+        unlisten.then((listener) => listener())
       }
     }
   }, [])
