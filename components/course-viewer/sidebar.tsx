@@ -27,18 +27,19 @@ export function Sidebar({ className, onBack, course, currentLessonId, onSelectLe
   return (
     <div
       className={cn(
-        "flex h-full min-h-0 min-w-0 flex-col bg-sidebar text-sidebar-foreground overflow-hidden w-full",
+        "flex h-full min-h-0 min-w-0 flex-col bg-sidebar text-sidebar-foreground",
         className
       )}
     >
-      <div className="flex flex-col border-b border-sidebar-border bg-sidebar shrink-0">
-        <div className="p-4 pb-2">
-          <Button variant="ghost" size="sm" onClick={onBack} className="h-8 px-2">
-            <ChevronLeft className="mr-1 h-4 w-4" /> back
-          </Button>
-        </div>
-        <div className="px-4 pb-4">
+      <div className="flex flex-col border-b border-sidebar-border bg-sidebar/95 px-4 py-4">
+        <Button variant="ghost" size="sm" onClick={onBack} className="h-8 w-fit px-2">
+          <ChevronLeft className="mr-1 h-4 w-4" /> back
+        </Button>
+        <div className="mt-3">
           <h2 className="font-head text-base leading-tight line-clamp-2">{course.name}</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {course.sections.length} sections
+          </p>
         </div>
       </div>
       <ScrollArea className="flex-1 min-h-0 min-w-0">
