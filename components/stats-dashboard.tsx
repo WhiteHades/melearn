@@ -154,7 +154,7 @@ export function StatsDashboard() {
 
   if (courses.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center space-y-4">
+      <div className="flex h-full flex-col items-center justify-center space-y-4 rounded-2xl border border-dashed border-border bg-card/60 p-10">
         <h2 className="text-2xl font-head">no stats yet</h2>
         <p className="text-muted-foreground font-sans">
           add a course to unlock analytics.
