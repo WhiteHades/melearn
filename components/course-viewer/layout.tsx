@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect, useMemo } from "react"
+import { NotesPanel } from "./notes-panel"
 import { Sidebar } from "./sidebar"
 import { VideoArea } from "./video-area"
-import { NotesPanel } from "./notes-panel"
 import type { Course, Lesson } from "@/types"
 
 interface CourseViewerLayoutProps {
@@ -37,6 +37,17 @@ export function CourseViewerLayout({
     return orderedLessons[0] ?? null
   }, [course, orderedLessons, selectedLessonId])
 
+  const currentLessonIndex = useMemo(() => {
+    if (!currentLesson) return -1
+    return orderedLessons.findIndex((lesson) => lesson.id === currentLesson.id)
+  }, [currentLesson, orderedLessons])
+
+  const previousLesson = currentLessonIndex > 0 ? orderedLessons[currentLessonIndex - 1] : null
+  const nextLesson =
+    currentLessonIndex >= 0 && currentLessonIndex < orderedLessons.length - 1
+      ? orderedLessons[currentLessonIndex + 1]
+      : null
+
   useEffect(() => {
     const currentLessonId = currentLesson?.id ?? null
 
@@ -49,53 +60,26 @@ export function CourseViewerLayout({
     onLessonChange?.(lesson.id)
   }
 
-  const handleNextLesson = () => {
-    if (!currentLesson) return
-
-    const currentIndex = orderedLessons.findIndex((lesson) => lesson.id === currentLesson.id)
-    if (currentIndex === -1) return
-
-    const nextLesson = orderedLessons[currentIndex + 1]
-    if (nextLesson) {
-      onLessonChange?.(nextLesson.id)
-    }
-  }
-
-  const handlePrevLesson = () => {
-    if (!currentLesson) return
-
-    const currentIndex = orderedLessons.findIndex((lesson) => lesson.id === currentLesson.id)
-    if (currentIndex <= 0) return
-
-    const previousLesson = orderedLessons[currentIndex - 1]
-    if (previousLesson) {
-      onLessonChange?.(previousLesson.id)
-    }
-  }
-
   return (
     <div className="h-full w-full bg-background text-foreground">
-      <div className="flex h-full w-full flex-col lg:flex-row">
-          <div className="border-b border-border lg:w-72 lg:border-b-0 lg:border-r lg:bg-sidebar">
+      <div className="mx-auto flex h-full w-full max-w-[1600px] flex-col lg:flex-row">
+        <aside className="border-b border-border/70 bg-sidebar/85 lg:w-[320px] lg:border-b-0 lg:border-r">
           <Sidebar
             onBack={onBack}
             course={course}
             currentLessonId={currentLesson?.id}
             onSelectLesson={handleLessonSelect}
           />
-        </div>
+        </aside>
 
-          <div className="flex h-full min-h-0 flex-1 flex-col lg:flex-row">
-          <div className="flex-1 min-h-0">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
             <VideoArea
               key={currentLesson?.id ?? "empty-lesson"}
               lesson={currentLesson}
-              onNext={handleNextLesson}
-              onPrevious={handlePrevLesson}
+              onNext={nextLesson ? () => onLessonChange?.(nextLesson.id) : undefined}
+              onPrevious={previousLesson ? () => onLessonChange?.(previousLesson.id) : undefined}
             />
-          </div>
-
-          <div className="border-t border-border lg:w-[320px] lg:border-l lg:border-t-0">
             <NotesPanel lesson={currentLesson} />
           </div>
         </div>

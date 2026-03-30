@@ -1,27 +1,25 @@
 import type { Metadata } from "next"
 import { AppProviders } from "@/components/app-providers"
-import { Archivo_Black, Space_Grotesk } from "next/font/google"
+import { Atkinson_Hyperlegible, Geist_Mono } from "next/font/google"
 import { TitleBar } from "@/components/title-bar"
-import { ThemeWrapper } from "@/components/theme-wrapper"
 import "@/app/globals.css"
 
-const archivoBlack = Archivo_Black({
+const atkinson = Atkinson_Hyperlegible({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-head",
+  weight: ["400", "700"],
+  variable: "--font-sans",
   display: "swap",
 })
 
-const space = Space_Grotesk({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-sans",
+  variable: "--font-mono",
   display: "swap",
 })
 
 export const metadata: Metadata = {
   title: "melearn",
-  description: "modern local course viewer",
+  description: "A simple offline course learner for local libraries.",
 }
 
 export default function RootLayout({
@@ -30,15 +28,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="theme-yellow" suppressHydrationWarning>
-      <body className={`${archivoBlack.variable} ${space.variable} flex min-h-screen h-screen flex-col overflow-hidden bg-background font-sans text-foreground antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${atkinson.variable} ${geistMono.variable} flex h-screen min-h-screen flex-col overflow-hidden bg-background font-sans text-foreground antialiased`}>
         <AppProviders>
-          <ThemeWrapper>
-            <TitleBar />
-            <div className="flex-1 w-full overflow-hidden">
-              {children}
-            </div>
-          </ThemeWrapper>
+          <TitleBar />
+          <div className="flex-1 w-full overflow-hidden">
+            {children}
+          </div>
         </AppProviders>
       </body>
     </html>

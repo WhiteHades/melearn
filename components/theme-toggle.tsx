@@ -1,45 +1,32 @@
 "use client"
 
-import * as React from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu"
-
-const themes = [
-  { value: "light", label: "light" },
-  { value: "dark", label: "dark" },
-  { value: "sepia", label: "sepia" },
-  { value: "solarized", label: "solarized" },
-] as const
 
 export function ThemeToggle() {
-  const { setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full border border-border bg-card">
-          <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:rotate-90 dark:scale-0" />
-          <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-44">
-        <DropdownMenuLabel className="text-xs text-muted-foreground">
-          theme
-        </DropdownMenuLabel>
-        {themes.map((t) => (
-          <DropdownMenuItem key={t.value} onClick={() => setTheme(t.value)}>
-            {t.label}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="relative rounded-full border-border/80 bg-card/80 shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.96]"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      <Sun
+        className={`absolute size-4 transition-[transform,opacity,filter] duration-200 ${
+          isDark ? "scale-75 opacity-0 blur-[4px]" : "scale-100 opacity-100 blur-0"
+        }`}
+      />
+      <Moon
+        className={`absolute size-4 transition-[transform,opacity,filter] duration-200 ${
+          isDark ? "scale-100 opacity-100 blur-0" : "scale-75 opacity-0 blur-[4px]"
+        }`}
+      />
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   )
 }

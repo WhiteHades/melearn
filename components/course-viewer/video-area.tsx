@@ -2,16 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { readTextFile } from "@tauri-apps/plugin-fs"
+import { CheckCircle2, Circle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { cn, formatDuration } from "@/lib/utils"
-import { trpc } from "@/lib/trpc/client"
-import { isTauri } from "@/lib/tauri"
-import type { Lesson } from "@/types"
+import { Separator } from "@/components/ui/separator"
 import { ContentViewer } from "@/components/content-viewer"
 import { VideoPlayer } from "@/components/video-player"
-import { CheckCircle2, Circle } from "lucide-react"
+import { trpc } from "@/lib/trpc/client"
+import { isTauri } from "@/lib/tauri"
+import { cn, formatDuration } from "@/lib/utils"
+import type { Lesson } from "@/types"
 
 interface VideoAreaProps {
   className?: string
@@ -78,13 +79,11 @@ const parseTranscript = (content: string): TranscriptCue[] => {
 export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaProps) {
   const utils = trpc.useUtils()
   const lastUpdateRef = useRef(0)
-  const scrollRef = useRef<HTMLDivElement>(null)
   const transcriptRef = useRef<HTMLDivElement>(null)
   const lessonId = lesson?.id ?? ""
   const lessonDuration = lesson?.duration ?? 0
   const lessonLastPosition = lesson?.lastPosition ?? 0
   const [playhead, setPlayhead] = useState(0)
-  const [isCompact, setIsCompact] = useState(false)
   const [seekTo, setSeekTo] = useState<number | null>(null)
   const [transcript, setTranscript] = useState<TranscriptCue[]>([])
   const [transcriptLabel, setTranscriptLabel] = useState<string | null>(null)
@@ -94,19 +93,6 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
       await utils.courses.list.invalidate()
     },
   })
-
-  useEffect(() => {
-    const container = scrollRef.current
-    if (!container) return
-
-    const handleScroll = () => {
-      setIsCompact(container.scrollTop > 180)
-    }
-
-    handleScroll()
-    container.addEventListener("scroll", handleScroll, { passive: true })
-    return () => container.removeEventListener("scroll", handleScroll)
-  }, [lessonId])
 
   useEffect(() => {
     let isActive = true
@@ -132,7 +118,7 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
         setTranscriptLabel(preferredSubtitle.label || preferredSubtitle.language)
       } catch {
         if (!isActive) return
-        setTranscriptError("failed to load transcript")
+        setTranscriptError("Failed to load transcript.")
       }
     }
 
@@ -141,7 +127,7 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
     return () => {
       isActive = false
     }
-  }, [lessonId, lesson])
+  }, [lesson])
 
   useEffect(() => {
     if (seekTo === null) return
@@ -202,41 +188,78 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
     const activeNode = container?.querySelector(
       `[data-cue-index="${activeCueIndex}"]`
     ) as HTMLElement | null
+
     if (!activeNode) return
-    activeNode.scrollIntoView({ block: "center", behavior: "smooth" })
+    activeNode.scrollIntoView({ block: "nearest", behavior: "smooth" })
   }, [activeCueIndex])
 
   if (!lesson) {
     return (
-      <div className={cn("flex h-full flex-col bg-background p-6 items-center justify-center text-center", className)}>
-        <div className="rounded-2xl border border-dashed border-border bg-card/60 px-8 py-10">
-          <h3 className="text-xl font-semibold text-muted-foreground">
-            select a lesson to start learning
-          </h3>
-        </div>
-      </div>
+      <Card className={className}>
+        <CardContent className="flex min-h-72 items-center justify-center px-6 py-12 text-center">
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold tracking-tight text-foreground">
+              Select a lesson to start learning
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Pick any lesson from the outline to open the player or document viewer.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     )
   }
 
   const isVideo = lesson.type === "video"
-
   const showTranscript =
     isVideo && (transcript.length > 0 || transcriptError || lesson.subtitles.length > 0)
 
   return (
-    <div
-      ref={scrollRef}
-      className={cn("flex h-full flex-col gap-6 bg-background px-6 pb-10 pt-6 overflow-y-auto", className)}
-    >
-      <div className="sticky top-4 z-20">
-        <div
-          className={cn(
-            "mx-auto w-full transition-all duration-300",
-            isCompact ? "max-w-[820px] scale-[0.94] origin-top" : "max-w-[1040px]"
-          )}
-        >
+    <div className={cn("flex flex-col gap-6", className)}>
+      <div className="space-y-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <Badge variant="secondary" className="rounded-full px-2.5 py-1 text-xs font-medium">
+                {lesson.sectionName || "Module"}
+              </Badge>
+              <Badge variant="outline" className="rounded-full px-2.5 py-1 uppercase tracking-wide">
+                {lesson.type}
+              </Badge>
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground text-balance">
+                {lesson.name}
+              </h1>
+              <p className="text-sm leading-6 text-muted-foreground">
+                {lesson.completed
+                  ? "Completed"
+                  : `Last position ${formatDuration(lesson.lastPosition ?? 0)}`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={onPrevious} disabled={!onPrevious}>
+              Previous
+            </Button>
+            <Button
+              variant={lesson.completed ? "secondary" : "outline"}
+              onClick={toggleComplete}
+              className="gap-2"
+            >
+              {lesson.completed ? <CheckCircle2 data-icon="inline-start" /> : <Circle data-icon="inline-start" />}
+              {lesson.completed ? "Completed" : "Mark complete"}
+            </Button>
+            <Button onClick={onNext} disabled={!onNext}>
+              Next lesson
+            </Button>
+          </div>
+        </div>
+
+        <Card className="overflow-hidden rounded-[28px] border-border/70 shadow-[0_28px_80px_-52px_rgba(15,23,42,0.55)]">
           {isVideo ? (
-            <Card className="aspect-video w-full overflow-hidden bg-black p-0 shadow-lg">
+            <div className="aspect-video w-full bg-black">
               <VideoPlayer
                 lesson={lesson}
                 onProgress={handleProgress}
@@ -245,97 +268,68 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
                 onPrevious={onPrevious}
                 seekTo={seekTo}
               />
-            </Card>
+            </div>
           ) : (
-            <Card className="h-full w-full overflow-hidden bg-background p-0 shadow-lg">
-              <ContentViewer lesson={lesson} onNext={onNext} onPrevious={onPrevious} />
-            </Card>
+            <ContentViewer lesson={lesson} onNext={onNext} onPrevious={onPrevious} />
           )}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold leading-snug text-foreground">
-            {lesson.name}
-          </h1>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="rounded-full border border-border px-2 py-0.5">
-              {lesson.sectionName || "module"}
-            </span>
-            <span className="rounded-full border border-border px-2 py-0.5 uppercase tracking-wide">
-              {lesson.type}
-            </span>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={onPrevious} disabled={!onPrevious}>
-            previous
-          </Button>
-          <Button
-            variant={lesson.completed ? "secondary" : "outline"}
-            onClick={toggleComplete}
-            className="gap-2"
-          >
-            {lesson.completed ? (
-              <CheckCircle2 className="h-4 w-4" />
-            ) : (
-              <Circle className="h-4 w-4" />
-            )}
-            {lesson.completed ? "completed" : "mark complete"}
-          </Button>
-          <Button onClick={onNext} disabled={!onNext}>
-            next lesson
-          </Button>
-        </div>
+        </Card>
       </div>
 
       {showTranscript && (
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">transcript</CardTitle>
-            {transcriptLabel ? (
-              <Badge variant="secondary" className="uppercase">
-                {transcriptLabel}
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="text-xs">
-                auto
-              </Badge>
-            )}
+          <CardHeader className="gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="space-y-1">
+                <CardTitle className="text-xl font-semibold tracking-tight">Transcript</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Click any line to jump to that moment in the lesson.
+                </p>
+              </div>
+              {transcriptLabel ? (
+                <Badge variant="secondary" className="rounded-full uppercase">
+                  {transcriptLabel}
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="rounded-full text-xs uppercase">
+                  Auto
+                </Badge>
+              )}
+            </div>
           </CardHeader>
-          <CardContent ref={transcriptRef} className="max-h-[320px] overflow-y-auto space-y-3">
-            {transcriptError && (
-              <p className="text-sm text-destructive">{transcriptError}</p>
-            )}
-            {!transcriptError && transcript.length === 0 && (
-              <p className="text-sm text-muted-foreground italic">no transcript found.</p>
-            )}
-            {transcript.map((cue, index) => {
-              const isActiveCue = index === activeCueIndex
-              return (
-                <button
-                  key={cue.id}
-                  type="button"
-                  data-cue-index={index}
-                  onClick={() => setSeekTo(cue.start)}
-                  className={cn(
-                    "w-full text-left rounded-md border border-transparent px-3 py-2 transition-colors",
-                    isActiveCue
-                      ? "bg-primary/15 border-primary"
-                      : "hover:bg-muted/50"
-                  )}
-                >
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="font-mono">{formatDuration(cue.start)}</span>
-                    <span className="text-[10px] uppercase tracking-wide">
-                      {formatDuration(cue.end)}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm text-foreground">{cue.text}</p>
-                </button>
-              )
-            })}
+
+          <CardContent className="space-y-4">
+            <Separator />
+            <div ref={transcriptRef} className="max-h-[360px] space-y-3 overflow-y-auto pr-1">
+              {transcriptError && <p className="text-sm text-destructive">{transcriptError}</p>}
+              {!transcriptError && transcript.length === 0 && (
+                <p className="text-sm text-muted-foreground">No transcript found for this lesson.</p>
+              )}
+
+              {transcript.map((cue, index) => {
+                const isActiveCue = index === activeCueIndex
+
+                return (
+                  <button
+                    key={cue.id}
+                    type="button"
+                    data-cue-index={index}
+                    onClick={() => setSeekTo(cue.start)}
+                    className={cn(
+                      "w-full rounded-2xl border px-4 py-3 text-left transition-colors",
+                      isActiveCue
+                        ? "border-primary/25 bg-primary/10"
+                        : "border-border/70 bg-background/60 hover:bg-muted/50"
+                    )}
+                  >
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span className="font-mono">{formatDuration(cue.start)}</span>
+                      <span>{formatDuration(cue.end)}</span>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-foreground">{cue.text}</p>
+                  </button>
+                )
+              })}
+            </div>
           </CardContent>
         </Card>
       )}

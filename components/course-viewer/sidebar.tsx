@@ -1,16 +1,10 @@
 "use client"
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
+import { ChevronLeft, CheckCircle2, Circle, PlayCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { cn, formatDuration } from "@/lib/utils"
-import { ChevronLeft, CheckCircle2, Circle } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils"
 import type { Course, Lesson, Section } from "@/types"
 
 interface SidebarProps {
@@ -24,6 +18,12 @@ interface SidebarProps {
 export function Sidebar({ className, onBack, course, currentLessonId, onSelectLesson }: SidebarProps) {
   if (!course) return null
 
+  const totalLessons = course.sections.reduce((sum, section) => sum + section.lessons.length, 0)
+  const completedLessons = course.sections.reduce(
+    (sum, section) => sum + section.lessons.filter((lesson) => lesson.completed).length,
+    0
+  )
+
   return (
     <div
       className={cn(
@@ -31,62 +31,76 @@ export function Sidebar({ className, onBack, course, currentLessonId, onSelectLe
         className
       )}
     >
-      <div className="flex flex-col border-b border-sidebar-border bg-sidebar/95 px-4 py-4">
-        <Button variant="ghost" size="sm" onClick={onBack} className="h-8 w-fit px-2">
-          <ChevronLeft className="mr-1 h-4 w-4" /> back
+      <div className="space-y-5 px-4 py-5 sm:px-5">
+        <Button variant="ghost" size="sm" onClick={onBack} className="h-9 w-fit px-3">
+          <ChevronLeft data-icon="inline-start" />
+          Back to library
         </Button>
-        <div className="mt-3">
-          <h2 className="font-head text-base leading-tight line-clamp-2">{course.name}</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {course.sections.length} sections
-          </p>
+
+        <div className="space-y-3">
+          <p className="text-sm font-medium text-muted-foreground">Course outline</p>
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold leading-tight tracking-tight text-balance">{course.name}</h2>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <span>{course.sections.length} sections</span>
+              <span>{totalLessons} lessons</span>
+              <span>{completedLessons} completed</span>
+            </div>
+          </div>
         </div>
       </div>
+
+      <Separator className="bg-sidebar-border" />
+
       <ScrollArea className="flex-1 min-h-0 min-w-0">
-        <div className="p-4 w-full min-w-0">
-          <Accordion type="single" collapsible className="w-full min-w-0">
-            {course.sections.map((section: Section, index: number) => (
-              <AccordionItem key={section.id} value={section.id} className="border-b-0">
-                <AccordionTrigger className="text-sm">
-                  <div className="flex items-center min-w-0 pr-2 text-left">
-                    <span className="mr-2 text-muted-foreground shrink-0">#{index + 1}</span>
-                    <span className="truncate min-w-0">{section.name}</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pt-0">
-                  <div className="flex flex-col gap-1">
-                    {section.lessons.map((lesson: Lesson) => {
-                      const isActive = currentLessonId === lesson.id
-                      return (
-                        <button
-                          key={lesson.id}
-                          onClick={() => onSelectLesson?.(lesson)}
-                          className={cn(
-                            "flex w-full min-w-0 items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors",
-                            isActive
-                              ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                              : "hover:bg-sidebar-accent"
+        <div className="space-y-6 px-4 py-5 sm:px-5">
+          {course.sections.map((section: Section, sectionIndex: number) => (
+            <section key={section.id} className="space-y-3">
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-foreground">Module {sectionIndex + 1}</p>
+                <p className="text-sm text-muted-foreground">{section.name}</p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                {section.lessons.map((lesson: Lesson) => {
+                  const isActive = currentLessonId === lesson.id
+
+                  return (
+                    <button
+                      key={lesson.id}
+                      type="button"
+                      onClick={() => onSelectLesson?.(lesson)}
+                      className={cn(
+                        "w-full rounded-2xl border px-3 py-3 text-left transition-[transform,box-shadow,border-color,background-color] duration-200",
+                        isActive
+                          ? "border-sidebar-primary/25 bg-sidebar-primary/10 shadow-[0_18px_40px_-36px_rgba(15,23,42,0.45)]"
+                          : "border-transparent bg-background/65 hover:-translate-y-0.5 hover:border-sidebar-border hover:bg-background"
+                      )}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 shrink-0">
+                          {lesson.completed ? (
+                            <CheckCircle2 className="size-4 text-primary" />
+                          ) : isActive ? (
+                            <PlayCircle className="size-4 text-primary" />
+                          ) : (
+                            <Circle className="size-4 text-muted-foreground" />
                           )}
-                        >
-                          <div className="flex items-center gap-2 overflow-hidden min-w-0 flex-1">
-                            {lesson.completed ? (
-                              <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                            ) : (
-                              <Circle className="h-3 w-3 text-muted-foreground shrink-0" />
-                            )}
-                            <span className="truncate min-w-0 block">{lesson.name}</span>
-                          </div>
-                          <Badge variant="outline" className="text-[10px] ml-2 shrink-0 text-foreground">
-                            {formatDuration(lesson.duration)}
-                          </Badge>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+                        </div>
+
+                        <div className="min-w-0 space-y-1">
+                          <p className="truncate text-sm font-medium text-foreground">{lesson.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {lesson.completed ? "Completed" : lesson.type}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </section>
+          ))}
         </div>
       </ScrollArea>
     </div>
