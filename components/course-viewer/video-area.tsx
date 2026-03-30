@@ -219,7 +219,7 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
       <div className="space-y-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground tabular-nums">
               <Badge variant="secondary" className="rounded-full px-2.5 py-1 text-xs font-medium">
                 {lesson.sectionName || "Module"}
               </Badge>
@@ -315,13 +315,13 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
                     data-cue-index={index}
                     onClick={() => setSeekTo(cue.start)}
                     className={cn(
-                      "w-full rounded-2xl border px-4 py-3 text-left transition-colors",
+                      "w-full rounded-2xl border px-4 py-3 text-left transition-[background-color,border-color,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       isActiveCue
                         ? "border-primary/25 bg-primary/10"
-                        : "border-border/70 bg-background/60 hover:bg-muted/50"
+                        : "border-border/70 bg-background/60 hover:-translate-y-0.5 hover:bg-muted/50"
                     )}
                   >
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground tabular-nums">
                       <span className="font-mono">{formatDuration(cue.start)}</span>
                       <span>{formatDuration(cue.end)}</span>
                     </div>

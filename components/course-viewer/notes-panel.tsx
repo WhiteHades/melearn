@@ -140,7 +140,7 @@ export function NotesPanel({ className, lesson }: NotesPanelProps) {
             <div className="space-y-3">
               {notes.map((note: Note) => (
                 <div key={note.id} className="rounded-2xl border border-border/70 bg-background/70 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground tabular-nums">
                     <span className="font-mono">{formatDuration(note.timestamp)}</span>
                     <span>{formatTimestamp(note.createdAt)}</span>
                   </div>
