@@ -1,16 +1,14 @@
 # melearn
 
-modern offline course viewer with a tauri desktop app.
+simple offline course learner with a tauri desktop app.
 
 ## features
 
-- scan and organize local video courses
-- custom video player with keyboard shortcuts
-- timestamped notes
-- command palette search (cmd+k)
-- analytics dashboard with progress tracking
-- retro ui themes
-- offline-first with sqlite persistence
+- scan and organize local course folders
+- custom video and document viewer
+- timestamped lesson notes
+- progress saved locally in sqlite
+- light and dark themes
 
 ## tech stack
 
@@ -20,9 +18,6 @@ modern offline course viewer with a tauri desktop app.
 - state: zustand with persist
 - search: minisearch
 - url state: nuqs
-- charts: recharts
-- tables: @tanstack/react-table
-- animations: motion
 - date utils: date-fns
 - desktop: tauri 2.x with rust backend
 
@@ -79,7 +74,6 @@ build outputs:
 | ↑/↓     | volume up/down   |
 | n       | next lesson      |
 | p       | previous lesson  |
-| cmd+k   | search           |
 
 ## license
 

@@ -94,11 +94,3 @@ export function search(query: string, limit = 20): SearchResult[] {
     score: r.score,
   }))
 }
-
-export function searchCourses(query: string, limit = 10): SearchResult[] {
-  return search(query, limit * 2).filter((r) => r.type === "course").slice(0, limit)
-}
-
-export function searchLessons(query: string, limit = 10): SearchResult[] {
-  return search(query, limit * 2).filter((r) => r.type === "lesson").slice(0, limit)
-}
