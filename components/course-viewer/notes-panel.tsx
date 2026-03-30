@@ -4,16 +4,18 @@ import { useEffect, useMemo } from "react"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Textarea } from "@/components/ui/textarea"
+import { NotebookPen } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { cn, formatDuration, formatTimestamp } from "@/lib/utils"
+import { Separator } from "@/components/ui/separator"
+import { Textarea } from "@/components/ui/textarea"
+import { formatDuration, formatTimestamp } from "@/lib/utils"
 import { trpc } from "@/lib/trpc/client"
 import type { Lesson, Note } from "@/types"
 
 const noteSchema = z.object({
-  text: z.string().trim().min(1, "note text is required").max(2000),
+  text: z.string().trim().min(1, "Note text is required.").max(2000),
 })
 
 type NoteFormValues = z.infer<typeof noteSchema>
@@ -65,108 +67,103 @@ export function NotesPanel({ className, lesson }: NotesPanelProps) {
 
   const handleSubmit = form.handleSubmit(async (values) => {
     if (!lesson) return
+
     await addNote.mutateAsync({
       lessonId: lesson.id,
       text: values.text,
       timestamp: lesson.lastPosition ?? 0,
     })
+
     form.reset()
   })
 
   return (
-    <div className={cn("flex h-full flex-col bg-background", className)}>
-      <Tabs defaultValue="notes" className="flex-1 flex flex-col">
-        <div className="border-b border-border bg-muted/30 px-4">
-          <TabsList className="h-12 w-full justify-start gap-2 bg-transparent">
-            <TabsTrigger value="notes" className="h-9 px-3">
-              my notes
-            </TabsTrigger>
-            <TabsTrigger value="resources" className="h-9 px-3">
-              resources
-            </TabsTrigger>
-          </TabsList>
+    <Card className={className}>
+      <CardHeader className="gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+            <NotebookPen className="size-4" />
+          </div>
+          <div className="space-y-1">
+            <CardTitle className="text-xl font-semibold tracking-tight">Lesson notes</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Capture quick takeaways without leaving the lesson.
+            </p>
+          </div>
         </div>
+      </CardHeader>
 
-        <div className="flex-1 overflow-hidden">
-          <TabsContent value="notes" className="h-full p-4 space-y-4 m-0 mt-0">
-            <form className="flex flex-col h-full gap-3" onSubmit={handleSubmit}>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="session-notes" className="font-head text-lg">
-                  session notes
-                </Label>
-                {lesson ? (
-                  <span className="text-xs text-muted-foreground">{lesson.name}</span>
-                ) : (
-                  <span className="text-xs text-muted-foreground">no lesson selected</span>
-                )}
-              </div>
-              <Textarea
-                id="session-notes"
-                placeholder="type your notes here..."
-                className="flex-1 resize-none font-sans"
-                {...form.register("text")}
-                aria-invalid={Boolean(form.formState.errors.text)}
-                disabled={!lesson || addNote.isPending}
-              />
-              {form.formState.errors.text && (
-                <p className="text-xs text-destructive">
-                  {form.formState.errors.text.message}
-                </p>
-              )}
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={!lesson || addNote.isPending}
-              >
-                {addNote.isPending ? "saving..." : "save notes"}
-              </Button>
-            </form>
+      <CardContent className="space-y-6">
+        <form className="space-y-3" onSubmit={handleSubmit}>
+          <div className="space-y-2">
+            <Label htmlFor="session-notes" className="text-sm font-medium text-foreground">
+              {lesson ? lesson.name : "Select a lesson to start taking notes"}
+            </Label>
+            <Textarea
+              id="session-notes"
+              placeholder="Write the part you want to remember. Notes save against the current lesson timestamp."
+              className="min-h-28 resize-y rounded-2xl"
+              {...form.register("text")}
+              aria-invalid={Boolean(form.formState.errors.text)}
+              disabled={!lesson || addNote.isPending}
+            />
+            {form.formState.errors.text && (
+              <p className="text-sm text-destructive">{form.formState.errors.text.message}</p>
+            )}
+          </div>
 
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              {lesson ? `Saved at ${formatDuration(lesson.lastPosition ?? 0)}` : "Notes unlock once a lesson is open."}
+            </p>
+            <Button type="submit" disabled={!lesson || addNote.isPending}>
+              {addNote.isPending ? "Saving..." : "Save note"}
+            </Button>
+          </div>
+        </form>
+
+        <Separator />
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-foreground">Saved notes</h3>
+            <span className="text-sm text-muted-foreground">{notes.length}</span>
+          </div>
+
+          {notes.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border/80 bg-muted/35 px-4 py-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                {lesson ? "No notes yet for this lesson." : "Open a lesson to start saving notes."}
+              </p>
+            </div>
+          ) : (
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">saved notes</p>
-                <span className="text-xs text-muted-foreground">{notes.length}</span>
-              </div>
-              {notes.length === 0 ? (
-                <p className="text-xs text-muted-foreground italic">no notes yet</p>
-              ) : (
-                <div className="space-y-3">
-                  {notes.map((note: Note) => (
-                    <div
-                      key={note.id}
-                      className="rounded-md border border-border bg-background p-3"
+              {notes.map((note: Note) => (
+                <div key={note.id} className="rounded-2xl border border-border/70 bg-background/70 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+                    <span className="font-mono">{formatDuration(note.timestamp)}</span>
+                    <span>{formatTimestamp(note.createdAt)}</span>
+                  </div>
+                  <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-foreground">
+                    {note.text}
+                  </p>
+                  <div className="mt-4 flex justify-end">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeNote.mutate({ noteId: note.id })}
+                      disabled={removeNote.isPending}
                     >
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="font-mono">{formatDuration(note.timestamp)}</span>
-                        <span>{formatTimestamp(note.createdAt)}</span>
-                      </div>
-                      <p className="mt-2 text-sm whitespace-pre-wrap">{note.text}</p>
-                      <div className="mt-3 flex justify-end">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeNote.mutate({ noteId: note.id })}
-                          disabled={removeNote.isPending}
-                        >
-                          delete
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                      Delete
+                    </Button>
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
-          </TabsContent>
-
-          <TabsContent value="resources" className="h-full p-4 m-0 mt-0">
-            <div className="space-y-4">
-              <h3 className="font-head text-lg">resources</h3>
-              <p className="text-muted-foreground italic text-sm">no attached resources.</p>
-            </div>
-          </TabsContent>
+          )}
         </div>
-      </Tabs>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
