@@ -12,7 +12,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         attribute="class"
         defaultTheme="light"
         enableSystem={false}
-        themes={["light", "dark", "sepia", "solarized"]}
+        themes={["light", "dark"]}
         disableTransitionOnChange
       >
         <TRPCProvider>
