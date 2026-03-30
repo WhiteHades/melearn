@@ -4,7 +4,7 @@ import { nanoid } from "nanoid"
 import type { Course, Lesson, Note } from "@/types"
 import { useCourseStore } from "@/lib/stores/course-store"
 import { processScanResult } from "@/lib/course-utils"
-import { indexCourses, search as searchIndex } from "@/lib/search"
+import { indexCourses } from "@/lib/search"
 import { scanFolder, isTauri } from "@/lib/tauri"
 import {
   listNotesByLesson,
@@ -186,14 +186,6 @@ export const appRouter = t.router({
         return true
       }),
   }),
-  search: t.procedure
-    .input(
-      z.object({
-        query: z.string().trim().min(1),
-        limit: z.number().min(1).max(50).optional(),
-      })
-    )
-    .query(({ input }) => searchIndex(input.query, input.limit ?? 20)),
 })
 
 export type AppRouter = typeof appRouter

@@ -5,11 +5,11 @@ import { readTextFile } from "@tauri-apps/plugin-fs"
 import { convertFileSrc } from "@tauri-apps/api/core"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
 import { isTauri } from "@/lib/tauri"
 import type { Lesson } from "@/types"
-import { SkipBack, SkipForward, FileText, File, FileCode, ExternalLink, Code } from "lucide-react"
+import { SkipBack, SkipForward, FileText, File, FileCode, ExternalLink } from "lucide-react"
 
 interface ContentViewerProps {
   lesson: Lesson
@@ -22,7 +22,6 @@ export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps
   const [assetSrc, setAssetSrc] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [showRaw, setShowRaw] = useState(false)
 
   const ext = lesson.path.toLowerCase().split(".").pop() || ""
   const isPdf = ext === "pdf"
@@ -135,28 +134,12 @@ export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps
             {getIcon()}
             <span className="font-medium">{lesson.name}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowRaw(!showRaw)}
-            >
-              <Code className="mr-1 size-4" />
-              {showRaw ? "rendered" : "raw"}
-            </Button>
-            {navButtons}
-          </div>
+          {navButtons}
         </div>
         <ScrollArea className="h-[60vh]">
-          {showRaw ? (
-            <pre className="whitespace-pre-wrap p-4 font-mono text-sm">{content}</pre>
-          ) : (
-            <div className="prose max-w-none p-4 dark:prose-invert">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {content}
-              </ReactMarkdown>
-            </div>
-          )}
+          <div className="prose max-w-none p-4 dark:prose-invert">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+          </div>
         </ScrollArea>
       </div>
     )
