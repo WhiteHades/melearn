@@ -1,13 +1,28 @@
 import type { Course, Section, Lesson } from "@/types"
 import type { ScanResult, CourseData, SectionData, FileEntry } from "@/lib/tauri"
-import { nanoid } from "nanoid"
 
-function generateLessonId(): string {
-  return nanoid(12)
+function normalizePath(value: string): string {
+  return value.replace(/\\/g, "/")
 }
 
-function generateCourseId(): string {
-  return nanoid(12)
+function hashString(value: string): string {
+  let hash = 2166136261
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index)
+    hash = Math.imul(hash, 16777619)
+  }
+
+  return (hash >>> 0).toString(16).padStart(8, "0")
+}
+
+function createStableId(kind: string, seed: string): string {
+  return `${kind}_${hashString(seed)}`
+}
+
+function getFileStem(value: string): string {
+  const basename = normalizePath(value).split("/").pop() ?? value
+  return basename.replace(/\.[^.]+$/, "")
 }
 
 function mapFileType(type: FileEntry["file_type"]): Lesson["type"] {
@@ -26,15 +41,12 @@ function mapFileType(type: FileEntry["file_type"]): Lesson["type"] {
 }
 
 function extractSubtitles(files: FileEntry[], videoPath: string): Lesson["subtitles"] {
-  const videoBasename = videoPath
-    .split("/")
-    .pop()
-    ?.replace(/\.[^.]+$/, "") ?? ""
+  const videoBasename = getFileStem(videoPath)
 
   return files
     .filter((f) => f.file_type === "subtitle")
     .filter((f) => {
-      const subtitleBasename = f.name.replace(/\.[^.]+$/, "")
+      const subtitleBasename = getFileStem(f.name)
       return (
         subtitleBasename === videoBasename ||
         subtitleBasename.startsWith(videoBasename + ".")
@@ -53,13 +65,14 @@ function extractSubtitles(files: FileEntry[], videoPath: string): Lesson["subtit
 
 function sectionDataToSection(
   data: SectionData,
-  courseId: string
+  courseId: string,
+  coursePath: string
 ): Section {
   const lessons: Lesson[] = data.files
     .filter((f) => f.file_type !== "subtitle")
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
     .map((file, index) => ({
-      id: generateLessonId(),
+      id: createStableId("lesson", normalizePath(file.path)),
       courseId,
       sectionName: data.name,
       name: file.name.replace(/\.[^.]+$/, ""),
@@ -74,7 +87,10 @@ function sectionDataToSection(
     }))
 
   return {
-    id: nanoid(8),
+    id: createStableId(
+      "section",
+      [coursePath, data.name, ...data.files.map((file) => normalizePath(file.path)).sort()].join("|")
+    ),
     name: data.name,
     lessons,
     order: data.order,
@@ -82,13 +98,11 @@ function sectionDataToSection(
 }
 
 function courseDataToCourse(data: CourseData): Course {
-  const courseId = generateCourseId()
+  const courseId = createStableId("course", normalizePath(data.path))
 
-  const sections = data.sections
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
-    .map((s, index) => sectionDataToSection({ ...s, order: index }, courseId))
-
-  const totalLessons = sections.reduce((sum, s) => sum + s.lessons.length, 0)
+  const sections = [...data.sections]
+    .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, undefined, { numeric: true }))
+    .map((section) => sectionDataToSection(section, courseId, data.path))
 
   return {
     id: courseId,
@@ -104,7 +118,9 @@ function courseDataToCourse(data: CourseData): Course {
 }
 
 export function processScanResult(result: ScanResult): Course[] {
-  return result.courses.map(courseDataToCourse)
+  return [...result.courses]
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+    .map(courseDataToCourse)
 }
 
 export function calculateCourseProgress(course: Course): number {

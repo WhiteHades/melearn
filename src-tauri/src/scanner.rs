@@ -158,6 +158,9 @@ fn scan_course(course_path: &Path) -> CourseData {
         .filter_map(|e| e.ok())
         .collect();
 
+    let mut entries = entries;
+    entries.sort_by(|a, b| a.file_name().cmp(&b.file_name()));
+
     for (index, entry) in entries.iter().enumerate() {
         let path = entry.path();
         
@@ -176,7 +179,7 @@ fn scan_course(course_path: &Path) -> CourseData {
             }
         } else if path.is_file() {
             let file_type = get_file_type(&path);
-            if is_media_file(&file_type) {
+            if is_media_file(&file_type) || file_type == FileType::Subtitle {
                 let size = entry.metadata().map(|m| m.len()).unwrap_or(0);
                 root_files.push(FileEntry {
                     path: path.to_string_lossy().to_string(),
@@ -199,7 +202,7 @@ fn scan_course(course_path: &Path) -> CourseData {
         }
     }
 
-    sections.sort_by(|a, b| a.name.cmp(&b.name));
+    sections.sort_by(|a, b| a.order.cmp(&b.order).then_with(|| a.name.cmp(&b.name)));
 
     CourseData {
         id: generate_id(course_path),

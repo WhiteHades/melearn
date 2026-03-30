@@ -49,7 +49,7 @@ async fn serve_video(Path(path): Path<String>, req: Request) -> Result<Response,
         
     log::info!("request: {} | range: {}", decoded_path, range_header);
 
-    let file_path = PathBuf::from(format!("/{}", decoded_path));
+    let file_path = PathBuf::from(&decoded_path);
     
     if !file_path.exists() {
          log::error!("not found: {:?}", file_path);
