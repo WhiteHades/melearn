@@ -71,7 +71,7 @@ export function Sidebar({ className, onBack, course, currentLessonId, onSelectLe
                       type="button"
                       onClick={() => onSelectLesson?.(lesson)}
                       className={cn(
-                        "w-full rounded-2xl border px-3 py-3 text-left transition-[transform,box-shadow,border-color,background-color] duration-200",
+                        "w-full rounded-2xl border px-3 py-3 text-left transition-[transform,box-shadow,border-color,background-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                         isActive
                           ? "border-sidebar-primary/25 bg-sidebar-primary/10 shadow-[0_18px_40px_-36px_rgba(15,23,42,0.45)]"
                           : "border-transparent bg-background/65 hover:-translate-y-0.5 hover:border-sidebar-border hover:bg-background"
@@ -90,7 +90,7 @@ export function Sidebar({ className, onBack, course, currentLessonId, onSelectLe
 
                         <div className="min-w-0 space-y-1">
                           <p className="truncate text-sm font-medium text-foreground">{lesson.name}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground capitalize">
                             {lesson.completed ? "Completed" : lesson.type}
                           </p>
                         </div>
