@@ -7,14 +7,11 @@ import { X, Minus, Square, Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function TitleBar() {
+  const isTauriApp = isTauri()
   const [isMaximized, setIsMaximized] = useState(false)
-  const [isTauriApp, setIsTauriApp] = useState(false)
 
   useEffect(() => {
-    setIsTauriApp(isTauri())
-    
-    // Check initial maximize state if in Tauri
-    if (isTauri()) {
+    if (isTauriApp) {
       getCurrentWindow().isMaximized().then(setIsMaximized)
 
       const unlisten = getCurrentWindow().listen("tauri://resize", async () => {
@@ -25,7 +22,7 @@ export function TitleBar() {
         unlisten.then((listener) => listener())
       }
     }
-  }, [])
+  }, [isTauriApp])
 
   if (!isTauriApp) return null
 
@@ -41,7 +38,7 @@ export function TitleBar() {
       data-tauri-drag-region
       className="sticky top-0 left-0 right-0 z-50 flex h-10 w-full shrink-0 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur select-none"
     >
-      <div className="flex items-center gap-2 font-head text-sm" data-tauri-drag-region>
+      <div className="flex items-center gap-2 text-sm font-semibold" data-tauri-drag-region>
         <div className="h-2.5 w-2.5 rounded-full bg-primary" />
         melearn
       </div>

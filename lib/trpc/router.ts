@@ -1,14 +1,17 @@
-import { initTRPC } from "@trpc/server"
+import { TRPCError, initTRPC } from "@trpc/server"
 import { z } from "zod"
 import { nanoid } from "nanoid"
-import type { Course, Note } from "@/types"
+import type { Course, Lesson, Note } from "@/types"
 import { useCourseStore } from "@/lib/stores/course-store"
 import { processScanResult } from "@/lib/course-utils"
 import { indexCourses, search as searchIndex } from "@/lib/search"
 import { scanFolder, isTauri } from "@/lib/tauri"
 import {
+  listNotesByLesson,
   saveNote,
   deleteNote as removeNote,
+  syncLibrary,
+  updateCourseLastAccessed,
   updateLessonProgress as persistLessonProgress,
 } from "@/lib/database"
 
@@ -21,22 +24,54 @@ const getStore = () => useCourseStore.getState()
 const courseIdSchema = z.string().min(1)
 const lessonIdSchema = z.string().min(1)
 
+function findCourse(courses: Course[], courseId: string): Course | null {
+  return courses.find((course) => course.id === courseId) ?? null
+}
+
+function findLesson(courses: Course[], lessonId: string): Lesson | null {
+  for (const course of courses) {
+    for (const section of course.sections) {
+      const lesson = section.lessons.find((entry) => entry.id === lessonId)
+      if (lesson) {
+        return lesson
+      }
+    }
+  }
+
+  return null
+}
+
 export const appRouter = t.router({
   courses: t.router({
     list: t.procedure.query(() => getStore().courses),
     byId: t.procedure.input(courseIdSchema).query(({ input }) => {
-      return getStore().courses.find((course: Course) => course.id === input) ?? null
+      return findCourse(getStore().courses, input)
     }),
     markAccessed: t.procedure
       .input(z.object({ courseId: courseIdSchema }))
-      .mutation(({ input }) => {
+      .mutation(async ({ input }) => {
         const { courses, setCourses } = getStore()
+        const existingCourse = findCourse(courses, input.courseId)
+
+        if (!existingCourse) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Course not found",
+          })
+        }
+
+        const timestamp = new Date().toISOString()
         const updated = courses.map((course: Course) =>
           course.id === input.courseId
-            ? { ...course, lastAccessed: new Date().toISOString() }
+            ? { ...course, lastAccessed: timestamp }
             : course
         )
-        const current = updated.find((course: Course) => course.id === input.courseId) ?? null
+        const current = findCourse(updated, input.courseId)
+
+        if (isTauri()) {
+          await updateCourseLastAccessed(input.courseId, timestamp)
+        }
+
         setCourses(updated)
         return current
       }),
@@ -47,11 +82,12 @@ export const appRouter = t.router({
       .mutation(async ({ input }) => {
         const result = await scanFolder(input.path)
         const courses = processScanResult(result)
+        const hydratedCourses = isTauri() ? await syncLibrary(courses) : courses
         const store = getStore()
-        store.setCourses(courses)
+        store.setCourses(hydratedCourses)
         store.setLibraryPath(input.path)
-        indexCourses(courses)
-        return { courses, warnings: result.warnings }
+        indexCourses(hydratedCourses)
+        return { courses: hydratedCourses, warnings: result.warnings }
       }),
   }),
   lessons: t.router({
@@ -66,8 +102,14 @@ export const appRouter = t.router({
       )
       .mutation(async ({ input }) => {
         const store = getStore()
-        store.updateLessonProgress(input.lessonId, input.watchedTime, input.lastPosition)
-        store.markLessonComplete(input.lessonId, input.completed)
+        const lesson = findLesson(store.courses, input.lessonId)
+
+        if (!lesson) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Lesson not found",
+          })
+        }
 
         if (isTauri()) {
           await persistLessonProgress(
@@ -78,13 +120,25 @@ export const appRouter = t.router({
           )
         }
 
+        store.updateLessonProgress(input.lessonId, input.watchedTime, input.lastPosition)
+        store.markLessonComplete(input.lessonId, input.completed)
+
         return true
       }),
   }),
   notes: t.router({
     list: t.procedure
       .input(z.object({ lessonId: lessonIdSchema }))
-      .query(({ input }) => {
+      .query(async ({ input }) => {
+        const lesson = findLesson(getStore().courses, input.lessonId)
+        if (!lesson) {
+          return []
+        }
+
+        if (isTauri()) {
+          return listNotesByLesson(input.lessonId)
+        }
+
         return getStore().notes.filter((note: Note) => note.lessonId === input.lessonId)
       }),
     add: t.procedure
@@ -96,6 +150,15 @@ export const appRouter = t.router({
         })
       )
       .mutation(async ({ input }) => {
+        const lesson = findLesson(getStore().courses, input.lessonId)
+
+        if (!lesson) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Lesson not found",
+          })
+        }
+
         const note = {
           id: nanoid(12),
           lessonId: input.lessonId,
@@ -104,10 +167,10 @@ export const appRouter = t.router({
           createdAt: new Date().toISOString(),
         }
 
-        getStore().addNote(note)
-
         if (isTauri()) {
           await saveNote(note)
+        } else {
+          getStore().addNote(note)
         }
 
         return note
@@ -115,9 +178,10 @@ export const appRouter = t.router({
     remove: t.procedure
       .input(z.object({ noteId: z.string().min(1) }))
       .mutation(async ({ input }) => {
-        getStore().deleteNote(input.noteId)
         if (isTauri()) {
           await removeNote(input.noteId)
+        } else {
+          getStore().deleteNote(input.noteId)
         }
         return true
       }),

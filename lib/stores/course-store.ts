@@ -29,9 +29,8 @@ const initialState: CourseState = {
 }
 
 type CourseStoreSet = StoreApi<CourseStore>["setState"]
-type CourseStoreGet = StoreApi<CourseStore>["getState"]
 
-const createCourseStore = (set: CourseStoreSet, _get: CourseStoreGet): CourseStore => ({
+const createCourseStore = (set: CourseStoreSet): CourseStore => ({
   ...initialState,
 
   setCourses: (courses: Course[]) => set({ courses }),

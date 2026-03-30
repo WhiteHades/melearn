@@ -1,5 +1,5 @@
 import MiniSearch from "minisearch"
-import type { Course, Lesson } from "@/types"
+import type { Course } from "@/types"
 
 interface SearchDocument {
   id: string

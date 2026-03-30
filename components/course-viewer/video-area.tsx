@@ -96,12 +96,6 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
   })
 
   useEffect(() => {
-    lastUpdateRef.current = 0
-    setPlayhead(0)
-    setSeekTo(null)
-  }, [lessonId])
-
-  useEffect(() => {
     const container = scrollRef.current
     if (!container) return
 
@@ -136,7 +130,7 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
         if (!isActive) return
         setTranscript(cues)
         setTranscriptLabel(preferredSubtitle.label || preferredSubtitle.language)
-      } catch (err) {
+      } catch {
         if (!isActive) return
         setTranscriptError("failed to load transcript")
       }
@@ -216,7 +210,7 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
     return (
       <div className={cn("flex h-full flex-col bg-background p-6 items-center justify-center text-center", className)}>
         <div className="rounded-2xl border border-dashed border-border bg-card/60 px-8 py-10">
-          <h3 className="text-xl font-head text-muted-foreground">
+          <h3 className="text-xl font-semibold text-muted-foreground">
             select a lesson to start learning
           </h3>
         </div>
@@ -242,7 +236,7 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
           )}
         >
           {isVideo ? (
-            <Card className="aspect-video w-full overflow-hidden bg-black p-0 shadow-xl">
+            <Card className="aspect-video w-full overflow-hidden bg-black p-0 shadow-lg">
               <VideoPlayer
                 lesson={lesson}
                 onProgress={handleProgress}
@@ -253,10 +247,46 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
               />
             </Card>
           ) : (
-            <Card className="h-full w-full overflow-hidden bg-background p-0 shadow-xl">
+            <Card className="h-full w-full overflow-hidden bg-background p-0 shadow-lg">
               <ContentViewer lesson={lesson} onNext={onNext} onPrevious={onPrevious} />
             </Card>
           )}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold leading-snug text-foreground">
+            {lesson.name}
+          </h1>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="rounded-full border border-border px-2 py-0.5">
+              {lesson.sectionName || "module"}
+            </span>
+            <span className="rounded-full border border-border px-2 py-0.5 uppercase tracking-wide">
+              {lesson.type}
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={onPrevious} disabled={!onPrevious}>
+            previous
+          </Button>
+          <Button
+            variant={lesson.completed ? "secondary" : "outline"}
+            onClick={toggleComplete}
+            className="gap-2"
+          >
+            {lesson.completed ? (
+              <CheckCircle2 className="h-4 w-4" />
+            ) : (
+              <Circle className="h-4 w-4" />
+            )}
+            {lesson.completed ? "completed" : "mark complete"}
+          </Button>
+          <Button onClick={onNext} disabled={!onNext}>
+            next lesson
+          </Button>
         </div>
       </div>
 
@@ -309,45 +339,6 @@ export function VideoArea({ className, lesson, onNext, onPrevious }: VideoAreaPr
           </CardContent>
         </Card>
       )}
-
-      <div className="space-y-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div>
-            <h1 className="text-3xl font-head mb-2 leading-tight">{lesson.name}</h1>
-            <div className="flex gap-2 flex-wrap">
-              <Badge variant="secondary">
-                {lesson.sectionName || "module"}
-              </Badge>
-              <Badge variant="outline" className="uppercase tracking-wider text-foreground">
-                {lesson.type}
-              </Badge>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2 shrink-0">
-            <Button variant="outline" onClick={onPrevious} disabled={!onPrevious}>
-              previous
-            </Button>
-            <Button
-              variant={lesson.completed ? "secondary" : "outline"}
-              onClick={toggleComplete}
-              className="gap-2"
-            >
-              {lesson.completed ? (
-                <CheckCircle2 className="h-4 w-4" />
-              ) : (
-                <Circle className="h-4 w-4" />
-              )}
-              {lesson.completed ? "completed" : "mark complete"}
-            </Button>
-            <Button
-              onClick={onNext}
-              disabled={!onNext}
-            >
-              next lesson
-            </Button>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

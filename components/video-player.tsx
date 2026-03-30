@@ -38,6 +38,10 @@ interface VideoPlayerProps {
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
+function createMediaUrl(port: number, filePath: string): string {
+  return `http://127.0.0.1:${port}/video/${encodeURIComponent(filePath)}`
+}
+
 function VideoPlayerComponent({
   lesson,
   onProgress,
@@ -70,26 +74,24 @@ function VideoPlayerComponent({
     async function loadVideoSrc() {
       if (!isVideoFile) return
 
-      try {
-        if (isTauri()) {
-          const port = await invoke<number>("get_video_server_port")
-          const videoPath = lesson.path.slice(1)
-          const src = `http://127.0.0.1:${port}/video/${encodeURIComponent(videoPath)}`
-          setVideoSrc(src)
+        try {
+          if (isTauri()) {
+            const port = await invoke<number>("get_video_server_port")
+            const src = createMediaUrl(port, lesson.path)
+            setVideoSrc(src)
 
-          const subtitleFile = lesson.subtitles?.[0]
-          if (subtitleFile) {
-            const subtitlePath = subtitleFile.path.slice(1)
-            const subtitleUrl = `http://127.0.0.1:${port}/video/${encodeURIComponent(subtitlePath)}`
-            setSubtitleSrc(subtitleUrl)
-          } else {
-            setSubtitleSrc(null)
+            const subtitleFile = lesson.subtitles?.[0]
+            if (subtitleFile) {
+              const subtitleUrl = createMediaUrl(port, subtitleFile.path)
+              setSubtitleSrc(subtitleUrl)
+            } else {
+              setSubtitleSrc(null)
           }
         } else {
           setVideoSrc(lesson.path)
           setSubtitleSrc(lesson.subtitles?.[0]?.path ?? null)
         }
-      } catch (err) {
+      } catch {
         setError("failed to load video source")
       }
     }
@@ -145,7 +147,6 @@ function VideoPlayerComponent({
     if (seekTo === null || seekTo === undefined) return
     if (!videoRef.current) return
     videoRef.current.currentTime = seekTo
-    setCurrentTime(seekTo)
     onProgress(seekTo, videoRef.current.duration)
   }, [seekTo, onProgress])
 

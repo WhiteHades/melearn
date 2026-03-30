@@ -87,8 +87,8 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
           <FolderOpen className="size-8 text-muted-foreground" />
         </div>
         <div>
-          <h2 className="text-lg font-head font-semibold">no courses yet</h2>
-          <p className="mt-1 text-sm text-muted-foreground font-sans">
+          <h2 className="text-lg font-semibold">no courses yet</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
             select a folder containing your courses to get started
           </p>
         </div>
@@ -119,8 +119,8 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
     <div className="flex flex-1 flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-head">your courses</h2>
-          <p className="text-sm text-muted-foreground font-sans">
+          <h2 className="text-lg font-semibold">your courses</h2>
+          <p className="text-sm text-muted-foreground">
             <span className="mr-2 inline-flex items-center rounded-full border border-border bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
               {visibleCourses.length}
             </span>
@@ -145,12 +145,12 @@ export function CourseGrid({ onCourseSelect, searchQuery, layout = "grid" }: Cou
         </div>
       )}
 
-      {normalizedQuery && visibleCourses.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card/60 p-6 text-center">
-          <p className="text-sm font-medium">no matches for "{normalizedQuery}"</p>
+        {normalizedQuery && visibleCourses.length === 0 ? (
+          <div className="rounded-xl border border-border bg-card/60 p-6 text-center">
+          <p className="text-sm font-medium">no matches for &quot;{normalizedQuery}&quot;</p>
           <p className="mt-1 text-xs text-muted-foreground">try a different search term</p>
-        </div>
-      ) : (
+          </div>
+        ) : (
         <div className={layoutClassName}>
           {visibleCourses.map((course: Course, index: number) => (
             <motion.div

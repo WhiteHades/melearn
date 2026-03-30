@@ -1,15 +1,10 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { Sidebar } from "./sidebar"
 import { VideoArea } from "./video-area"
 import { NotesPanel } from "./notes-panel"
 import type { Course, Lesson } from "@/types"
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable"
 
 interface CourseViewerLayoutProps {
   course: Course | null
@@ -24,142 +19,87 @@ export function CourseViewerLayout({
   selectedLessonId,
   onLessonChange,
 }: CourseViewerLayoutProps) {
-  const [currentLessonId, setCurrentLessonId] = useState<string | null>(null)
-
-  // Initialize with the first lesson of the first section when course changes
-  useEffect(() => {
-    if (!course) {
-      setCurrentLessonId(null)
-      onLessonChange?.(null)
-      return
-    }
-
-    const fromSelection = selectedLessonId
-      ? course.sections.flatMap((section) => section.lessons).find((lesson) => lesson.id === selectedLessonId) ?? null
-      : null
-
-    const fallback =
-      course.sections.length > 0 && course.sections[0].lessons.length > 0
-        ? course.sections[0].lessons[0]
-        : null
-
-    const nextLessonId = fromSelection?.id ?? fallback?.id ?? null
-    setCurrentLessonId(nextLessonId)
-
-    if (nextLessonId && nextLessonId !== selectedLessonId) {
-      onLessonChange?.(nextLessonId)
-    }
-  }, [course, selectedLessonId, onLessonChange])
+  const orderedLessons = useMemo(() => {
+    if (!course) return []
+    return course.sections.flatMap((section) => section.lessons)
+  }, [course])
 
   const currentLesson = useMemo(() => {
-    if (!course || !currentLessonId) return null
-    for (const section of course.sections) {
-      const lesson = section.lessons.find((item) => item.id === currentLessonId)
-      if (lesson) return lesson
+    if (!course) return null
+
+    if (selectedLessonId) {
+      const selectedLesson = orderedLessons.find((lesson) => lesson.id === selectedLessonId)
+      if (selectedLesson) {
+        return selectedLesson
+      }
     }
-    return null
-  }, [course, currentLessonId])
+
+    return orderedLessons[0] ?? null
+  }, [course, orderedLessons, selectedLessonId])
+
+  useEffect(() => {
+    const currentLessonId = currentLesson?.id ?? null
+
+    if (currentLessonId !== selectedLessonId) {
+      onLessonChange?.(currentLessonId)
+    }
+  }, [currentLesson, onLessonChange, selectedLessonId])
 
   const handleLessonSelect = (lesson: Lesson) => {
-    setCurrentLessonId(lesson.id)
     onLessonChange?.(lesson.id)
   }
 
   const handleNextLesson = () => {
-    if (!course || !currentLessonId) return
+    if (!currentLesson) return
 
-    for (let i = 0; i < course.sections.length; i++) {
-      const section = course.sections[i]
-      const lessonIndex = section.lessons.findIndex((l) => l.id === currentLessonId)
-      
-      if (lessonIndex !== -1) {
-        // Check next lesson in same section
-        if (lessonIndex < section.lessons.length - 1) {
-          const nextLesson = section.lessons[lessonIndex + 1]
-          setCurrentLessonId(nextLesson.id)
-          onLessonChange?.(nextLesson.id)
-          return
-        }
-        // Check first lesson of next section
-        if (i < course.sections.length - 1 && course.sections[i + 1].lessons.length > 0) {
-          const nextLesson = course.sections[i + 1].lessons[0]
-          setCurrentLessonId(nextLesson.id)
-          onLessonChange?.(nextLesson.id)
-          return
-        }
-      }
+    const currentIndex = orderedLessons.findIndex((lesson) => lesson.id === currentLesson.id)
+    if (currentIndex === -1) return
+
+    const nextLesson = orderedLessons[currentIndex + 1]
+    if (nextLesson) {
+      onLessonChange?.(nextLesson.id)
     }
   }
 
   const handlePrevLesson = () => {
-    if (!course || !currentLessonId) return
+    if (!currentLesson) return
 
-    for (let i = 0; i < course.sections.length; i++) {
-        const section = course.sections[i]
-        const lessonIndex = section.lessons.findIndex((l) => l.id === currentLessonId)
-        
-        if (lessonIndex !== -1) {
-          // Check prev lesson in same section
-          if (lessonIndex > 0) {
-            const prevLesson = section.lessons[lessonIndex - 1]
-            setCurrentLessonId(prevLesson.id)
-            onLessonChange?.(prevLesson.id)
-            return
-          }
-          // Check last lesson of prev section
-          if (i > 0 && course.sections[i - 1].lessons.length > 0) {
-            const prevSection = course.sections[i - 1]
-            const prevLesson = prevSection.lessons[prevSection.lessons.length - 1]
-            setCurrentLessonId(prevLesson.id)
-            onLessonChange?.(prevLesson.id)
-            return
-          }
-        }
-      }
+    const currentIndex = orderedLessons.findIndex((lesson) => lesson.id === currentLesson.id)
+    if (currentIndex <= 0) return
+
+    const previousLesson = orderedLessons[currentIndex - 1]
+    if (previousLesson) {
+      onLessonChange?.(previousLesson.id)
+    }
   }
 
   return (
     <div className="h-full w-full bg-background text-foreground">
-      <ResizablePanelGroup
-        orientation="horizontal"
-        className="h-full w-full"
-        id="course-viewer-layout"
-      >
-        <ResizablePanel
-          defaultSize={20}
-          minSize={12}
-          collapsible={true}
-          className="bg-sidebar min-h-0 min-w-0 overflow-hidden"
-        >
+      <div className="flex h-full w-full flex-col lg:flex-row">
+          <div className="border-b border-border lg:w-72 lg:border-b-0 lg:border-r lg:bg-sidebar">
           <Sidebar
             onBack={onBack}
             course={course}
             currentLessonId={currentLesson?.id}
             onSelectLesson={handleLessonSelect}
           />
-        </ResizablePanel>
+        </div>
 
-        <ResizableHandle withHandle className="w-px bg-border" />
+          <div className="flex h-full min-h-0 flex-1 flex-col lg:flex-row">
+          <div className="flex-1 min-h-0">
+            <VideoArea
+              key={currentLesson?.id ?? "empty-lesson"}
+              lesson={currentLesson}
+              onNext={handleNextLesson}
+              onPrevious={handlePrevLesson}
+            />
+          </div>
 
-        <ResizablePanel defaultSize={55} minSize={20} className="bg-background min-h-0 min-w-0">
-          <VideoArea
-            lesson={currentLesson}
-            onNext={handleNextLesson}
-            onPrevious={handlePrevLesson}
-          />
-        </ResizablePanel>
-
-        <ResizableHandle withHandle className="w-px bg-border" />
-
-        <ResizablePanel
-          defaultSize={25}
-          minSize={12}
-          collapsible={true}
-          className="bg-background min-h-0 min-w-0"
-        >
-          <NotesPanel lesson={currentLesson} />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+          <div className="border-t border-border lg:w-[320px] lg:border-l lg:border-t-0">
+            <NotesPanel lesson={currentLesson} />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
