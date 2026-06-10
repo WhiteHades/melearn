@@ -12,9 +12,10 @@ import type { Course } from "@/types"
 interface CourseGridProps {
   onCourseSelect: (course: Course) => void
   searchQuery?: string
+  viewMode?: "grid" | "list"
 }
 
-export function CourseGrid({ onCourseSelect, searchQuery }: CourseGridProps) {
+export function CourseGrid({ onCourseSelect, searchQuery, viewMode = "grid" }: CourseGridProps) {
   const { data: courses = [] } = trpc.courses.list.useQuery()
 
   const normalizedQuery = searchQuery?.trim() ?? ""
@@ -66,6 +67,16 @@ export function CourseGrid({ onCourseSelect, searchQuery }: CourseGridProps) {
             </p>
           </CardContent>
         </Card>
+      ) : viewMode === "list" ? (
+        <div className="flex flex-col gap-2">
+          {visibleCourses.map((course) => (
+            <CourseCard
+              key={course.id}
+              course={course}
+              onClick={() => onCourseSelect(course)}
+            />
+          ))}
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleCourses.map((course) => (
