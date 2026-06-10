@@ -35,7 +35,6 @@ interface VideoPlayerProps {
   onPrevious?: () => void
   onNext?: () => void
   autoplay?: boolean
-  seekTo?: number | null
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
@@ -52,7 +51,6 @@ function VideoPlayerComponent({
   onPrevious,
   onNext,
   autoplay = false,
-  seekTo,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -199,16 +197,6 @@ function VideoPlayerComponent({
       video.removeEventListener("error", handleError)
     }
   }, [videoSrc, autoplay, lesson.lastPosition, onProgress, onComplete])
-
-  useEffect(() => {
-    if (seekTo === null || seekTo === undefined) return
-    const video = videoRef.current
-    if (!video) return
-    video.currentTime = seekTo
-    const frame = window.requestAnimationFrame(() => setCurrentTime(seekTo))
-    onProgress(seekTo, video.duration)
-    return () => window.cancelAnimationFrame(frame)
-  }, [seekTo, onProgress])
 
   const togglePlay = useCallback(() => {
     const video = videoRef.current
