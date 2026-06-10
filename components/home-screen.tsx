@@ -55,6 +55,8 @@ export function HomeScreen() {
     [setCourseId, setLessonId, setViewParam, markAccessed]
   )
 
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+
   const handleBack = useCallback(() => {
     setViewParam("library")
     setCourseId(null)
@@ -73,8 +75,6 @@ export function HomeScreen() {
       </SidebarProvider>
     )
   }
-
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   return (
     <div className="flex h-full flex-col">
