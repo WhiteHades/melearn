@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "melearn",
+  title: "melearner",
   description: "A simple offline course learner for local libraries.",
 }
 

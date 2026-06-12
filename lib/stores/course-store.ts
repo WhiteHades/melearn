@@ -110,7 +110,7 @@ const createCourseStore = (set: CourseStoreSet): CourseStore => ({
 
 const useCourseStoreInternal = create<CourseStore>()(
   persist(createCourseStore, {
-    name: "melearn-storage",
+    name: "melearner-storage",
     partialize: (state: CourseStore) => ({
       courses: state.courses,
       libraryPath: state.libraryPath,

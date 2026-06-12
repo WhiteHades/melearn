@@ -122,8 +122,8 @@ pub fn run() {
     }
 
     let db_path = std::env::var("HOME")
-        .map(|h| std::path::PathBuf::from(h).join(".local").join("share").join("melearn").join("melearn.db"))
-        .unwrap_or_else(|_| std::path::PathBuf::from("melearn.db"));
+        .map(|h| std::path::PathBuf::from(h).join(".local").join("share").join("melearner").join("melearner.db"))
+        .unwrap_or_else(|_| std::path::PathBuf::from("melearner.db"));
 
     if let Some(parent) = db_path.parent() {
         let _ = std::fs::create_dir_all(parent);
@@ -175,8 +175,8 @@ fn write_startup_log(event: &str) -> std::io::Result<()> {
     use std::io::Write;
 
     let log_path = std::env::var("HOME")
-        .map(|h| std::path::PathBuf::from(h).join(".melearn").join("startup.log"))
-        .unwrap_or_else(|_| std::path::PathBuf::from("/tmp/melearn-startup.log"));
+        .map(|h| std::path::PathBuf::from(h).join(".melearner").join("startup.log"))
+        .unwrap_or_else(|_| std::path::PathBuf::from("/tmp/melearner-startup.log"));
 
     if let Some(parent) = log_path.parent() {
         let _ = std::fs::create_dir_all(parent);
@@ -197,8 +197,8 @@ fn log_frontend(message: String) {
     use std::io::Write;
 
     let log_path = std::env::var("HOME")
-        .map(|h| std::path::PathBuf::from(h).join(".melearn").join("frontend.log"))
-        .unwrap_or_else(|_| std::path::PathBuf::from("/tmp/melearn-frontend.log"));
+        .map(|h| std::path::PathBuf::from(h).join(".melearner").join("frontend.log"))
+        .unwrap_or_else(|_| std::path::PathBuf::from("/tmp/melearner-frontend.log"));
 
     if let Some(parent) = log_path.parent() {
         let _ = fs::create_dir_all(parent);

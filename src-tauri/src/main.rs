@@ -5,5 +5,5 @@ fn main() {
     {
         std::env::set_var("GDK_BACKEND", "x11");
     }
-    melearn_lib::run();
+    melearner_lib::run();
 }

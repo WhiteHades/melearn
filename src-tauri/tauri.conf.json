@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "melearn",
+  "productName": "melearner",
   "version": "0.1.0",
-  "identifier": "com.melearn.app",
+  "identifier": "com.melearner.app",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "melearn",
+        "title": "melearner",
         "width": 1280,
         "height": 800,
         "minWidth": 900,
@@ -45,7 +45,7 @@
     ],
     "category": "Education",
     "shortDescription": "modern offline course viewer",
-    "longDescription": "melearn is a modern, shadcn-powered offline course viewer for video courses with notes, bookmarks, and progress tracking.",
+    "longDescription": "melearner is a modern, shadcn-powered offline course viewer for video courses with notes, bookmarks, and progress tracking.",
     "linux": {
       "appimage": {
         "bundleMediaFramework": true

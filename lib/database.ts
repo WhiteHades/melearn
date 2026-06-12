@@ -31,7 +31,7 @@ async function getDatabase(): Promise<Database | null> {
   if (!isTauri()) return null
 
   if (!db) {
-    db = await Database.load("sqlite:melearn.db")
+    db = await Database.load("sqlite:melearner.db")
   }
 
   return db
