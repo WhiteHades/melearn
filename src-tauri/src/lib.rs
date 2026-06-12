@@ -1,9 +1,8 @@
 mod scanner;
 mod video_server;
 
-use tauri::Manager;
 use tauri_plugin_sql::{Builder as SqlBuilder, Migration, MigrationKind};
-use video_server::{VideoServer, VideoServerState};
+use video_server::VideoServer;
 
 fn get_migrations() -> Vec<Migration> {
     vec![
@@ -147,17 +146,10 @@ pub fn run() {
                 )?;
             }
 
-            let port = tauri::async_runtime::block_on(async {
-                match VideoServer::start(9527).await {
-                    Ok(p) => p,
-                    Err(_) => {
-                        let res: u16 = VideoServer::start(0).await.expect("failed to start video server");
-                        res
-                    },
-                }
+            tauri::async_runtime::spawn(async {
+                let port = VideoServer::get_or_start().await;
+                log::info!("video server ready on port {port}");
             });
-
-            app.manage(VideoServerState { port });
 
             Ok(())
         })

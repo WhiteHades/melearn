@@ -6,18 +6,30 @@ use axum::{
     Router,
 };
 use std::{net::SocketAddr, path::PathBuf};
+use tokio::sync::OnceCell;
 use tower::ServiceExt;
 use tower_http::services::ServeFile;
 use tower_http::cors::CorsLayer;
 
-pub struct VideoServerState {
-    pub port: u16,
-}
-
 pub struct VideoServer;
 
+static VIDEO_SERVER: OnceCell<u16> = OnceCell::const_new();
+
 impl VideoServer {
-    pub async fn start(port: u16) -> Result<u16, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_or_start() -> &'static u16 {
+        VIDEO_SERVER
+            .get_or_init(|| async {
+                match Self::start(9527).await {
+                    Ok(p) => p,
+                    Err(_) => Self::start(0)
+                        .await
+                        .expect("failed to bind video server to any port"),
+                }
+            })
+            .await
+    }
+
+    async fn start(port: u16) -> Result<u16, Box<dyn std::error::Error + Send + Sync>> {
         let app = Router::new()
             .route("/video/*path", get(serve_video))
             .layer(CorsLayer::permissive());
@@ -42,37 +54,33 @@ async fn serve_video(Path(path): Path<String>, req: Request) -> Result<Response,
         Err(_) => return Err(StatusCode::BAD_REQUEST),
     };
 
-    let range_header = req.headers()
+    let range_header = req
+        .headers()
         .get("range")
         .and_then(|h| h.to_str().ok())
         .unwrap_or("none");
-        
+
     log::info!("request: {} | range: {}", decoded_path, range_header);
 
     let file_path = PathBuf::from(&decoded_path);
-    
+
     if !file_path.exists() {
-         log::error!("not found: {:?}", file_path);
-         return Err(StatusCode::NOT_FOUND);
+        log::error!("not found: {:?}", file_path);
+        return Err(StatusCode::NOT_FOUND);
     }
-    
+
     let service = ServeFile::new(file_path);
-    
+
     match service.oneshot(req).await {
-        Ok(res) => {
-            // log::info!("response status: {}", res.status());
-            Ok(res.into_response())
-        },
+        Ok(res) => Ok(res.into_response()),
         Err(e) => {
             log::error!("serve error: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
-        },
+        }
     }
 }
 
 #[tauri::command]
-pub async fn get_video_server_port(
-    state: tauri::State<'_, VideoServerState>,
-) -> Result<u16, String> {
-    Ok(state.port)
+pub async fn get_video_server_port() -> Result<u16, String> {
+    Ok(*VideoServer::get_or_start().await)
 }
