@@ -166,6 +166,7 @@ pub fn run() {
             scanner::get_file_info,
             video_server::get_video_server_port,
             log_frontend,
+            open_native,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -196,4 +197,42 @@ fn log_frontend(message: String) {
     {
         let _ = writeln!(f, "[{timestamp}] {message}");
     }
+}
+
+#[tauri::command]
+fn open_native(path: String) -> Result<(), String> {
+    use std::process::Command;
+
+    let path_buf = std::path::PathBuf::from(&path);
+    if !path_buf.exists() {
+        return Err(format!("file not found: {path}"));
+    }
+
+    #[cfg(target_os = "linux")]
+    let mut cmd = {
+        let mut c = Command::new("xdg-open");
+        c.arg(&path_buf);
+        c
+    };
+
+    #[cfg(target_os = "macos")]
+    let mut cmd = {
+        let mut c = Command::new("open");
+        c.arg(&path_buf);
+        c
+    };
+
+    #[cfg(target_os = "windows")]
+    let mut cmd = {
+        let mut c = Command::new("cmd");
+        c.args(["/C", "start", "", &path]);
+        c
+    };
+
+    cmd.stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| format!("failed to open file: {e}"))
 }

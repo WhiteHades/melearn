@@ -1,15 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { readTextFile } from "@tauri-apps/plugin-fs"
-import { convertFileSrc } from "@tauri-apps/api/core"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { invoke } from "@tauri-apps/api/core"
 import { Button } from "@/components/ui/button"
+import { frontendLog } from "@/lib/frontend-log"
 import { isTauri } from "@/lib/tauri"
 import type { Lesson } from "@/types"
-import { SkipBack, SkipForward, FileText, File, FileCode, ExternalLink } from "lucide-react"
+import { SkipBack, SkipForward, FileText, File, FileCode } from "lucide-react"
 
 interface ContentViewerProps {
   lesson: Lesson
@@ -18,54 +15,57 @@ interface ContentViewerProps {
 }
 
 export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps) {
-  const [content, setContent] = useState<string | null>(null)
-  const [assetSrc, setAssetSrc] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [openedExternally, setOpenedExternally] = useState(false)
 
   const ext = lesson.path.toLowerCase().split(".").pop() || ""
   const isPdf = ext === "pdf"
   const isHtml = ext === "html" || ext === "htm"
   const isMarkdown = ext === "md" || ext === "markdown"
-  const isTextFile = ["document", "subtitle"].includes(lesson.type) && !isPdf
+  const isDocument = lesson.type === "document"
+
+  const getIcon = () => {
+    if (isPdf || isDocument) return <FileText className="size-8 text-muted-foreground" />
+    if (isHtml || isMarkdown) return <FileCode className="size-8 text-muted-foreground" />
+    return <File className="size-8 text-muted-foreground" />
+  }
 
   useEffect(() => {
-    async function loadContent() {
+    let isActive = true
+
+    async function openInNative() {
       setLoading(true)
       setError(null)
-      setContent(null)
-      setAssetSrc(null)
+      setOpenedExternally(false)
+
+      if (!isTauri()) {
+        setError("file viewing requires desktop app")
+        setLoading(false)
+        return
+      }
 
       try {
-        if (!isTauri()) {
-          setError("file viewing requires desktop app")
-          return
-        }
-
-        if (isPdf || isHtml) {
-          const src = convertFileSrc(lesson.path)
-          setAssetSrc(src)
-        } else if (isTextFile || isMarkdown) {
-          const text = await readTextFile(lesson.path)
-          setContent(text)
-        }
+        await invoke("open_native", { path: lesson.path })
+        if (!isActive) return
+        setOpenedExternally(true)
+        frontendLog("info", "content.openNative", { path: lesson.path, type: lesson.type })
       } catch (err) {
-        setError(`failed to load file: ${err}`)
+        if (!isActive) return
+        const message = err instanceof Error ? err.message : String(err)
+        setError(`failed to open file: ${message}`)
+        frontendLog("error", "content.openNative.failed", { path: lesson.path, error: message })
       } finally {
-        setLoading(false)
+        if (isActive) setLoading(false)
       }
     }
 
-    loadContent()
-  }, [lesson.path, isPdf, isHtml, isTextFile, isMarkdown, ext])
+    openInNative()
 
-  const getIcon = () => {
-    if (isPdf) return <FileText className="size-8 text-muted-foreground" />
-    if (isHtml) return <FileCode className="size-8 text-muted-foreground" />
-    if (isMarkdown) return <FileCode className="size-8 text-muted-foreground" />
-    if (lesson.type === "document") return <FileText className="size-8 text-muted-foreground" />
-    return <File className="size-8 text-muted-foreground" />
-  }
+    return () => {
+      isActive = false
+    }
+  }, [lesson.path, lesson.type])
 
   const navButtons = (
     <div className="flex gap-2">
@@ -85,7 +85,23 @@ export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps
   if (loading) {
     return (
       <div className="flex aspect-video w-full items-center justify-center bg-muted">
-        <p className="text-muted-foreground">loading...</p>
+        <p className="text-muted-foreground">opening in default app...</p>
+      </div>
+    )
+  }
+
+  if (openedExternally) {
+    return (
+      <div className="flex aspect-video w-full flex-col items-center justify-center gap-4 bg-muted">
+        {getIcon()}
+        <div className="text-center">
+          <p className="text-lg font-medium">{lesson.name}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {"opened in your default app \u2014 return here when you are done"}
+          </p>
+          <p className="mt-2 max-w-md truncate text-xs text-muted-foreground">{lesson.path}</p>
+        </div>
+        {navButtons}
       </div>
     )
   }
@@ -95,69 +111,6 @@ export function ContentViewer({ lesson, onPrevious, onNext }: ContentViewerProps
       <div className="flex aspect-video w-full flex-col items-center justify-center gap-4 bg-muted">
         <p className="text-destructive">{error}</p>
         {navButtons}
-      </div>
-    )
-  }
-
-  if ((isPdf || isHtml) && assetSrc) {
-    return (
-      <div className="flex flex-col bg-background">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2">
-          <div className="flex items-center gap-2">
-            {getIcon()}
-            <span className="font-medium">{lesson.name}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <a href={assetSrc} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="mr-1 size-4" /> open externally
-              </a>
-            </Button>
-            {navButtons}
-          </div>
-        </div>
-        <iframe
-          src={assetSrc}
-          className="min-h-[50vh] w-full flex-1 border-0 bg-white"
-          title={lesson.name}
-          sandbox="allow-same-origin allow-scripts"
-        />
-      </div>
-    )
-  }
-
-  if (isMarkdown && content) {
-    return (
-      <div className="flex flex-col bg-background">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2">
-          <div className="flex items-center gap-2">
-            {getIcon()}
-            <span className="font-medium">{lesson.name}</span>
-          </div>
-          {navButtons}
-        </div>
-        <ScrollArea className="min-h-[40vh] flex-1">
-          <div className="prose max-w-none p-4 dark:prose-invert">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-          </div>
-        </ScrollArea>
-      </div>
-    )
-  }
-
-  if (isTextFile && content) {
-    return (
-      <div className="flex flex-col bg-background">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-2">
-          <div className="flex items-center gap-2">
-            {getIcon()}
-            <span className="font-medium">{lesson.name}</span>
-          </div>
-          {navButtons}
-        </div>
-        <ScrollArea className="min-h-[40vh] flex-1">
-          <pre className="whitespace-pre-wrap break-all p-4 font-mono text-sm">{content}</pre>
-        </ScrollArea>
       </div>
     )
   }
