@@ -119,23 +119,33 @@ pub fn run() {
         std::env::set_var("GST_PLUGIN_FEATURE_RANK", "avdec_h264:MAX");
     }
 
-    let db_path = std::env::var("HOME")
+fn get_db_path() -> std::path::PathBuf {
+    std::env::var("HOME")
         .map(|h| std::path::PathBuf::from(h).join(".local").join("share").join("melearner").join("melearner.db"))
-        .unwrap_or_else(|_| std::path::PathBuf::from("melearner.db"));
+        .unwrap_or_else(|_| std::path::PathBuf::from("melearner.db"))
+}
 
+fn get_db_url() -> String {
+    format!("sqlite:{}", get_db_path().display())
+}
+
+#[tauri::command]
+fn get_database_path() -> String {
+    get_db_url()
+}
+    let _ = write_startup_log("paths.ready");
+
+    let db_path = get_db_path();
     if let Some(parent) = db_path.parent() {
         let _ = std::fs::create_dir_all(parent);
     }
-
-    let db_url = format!("sqlite:{}", db_path.display());
-    let _ = write_startup_log("paths.ready");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(
             SqlBuilder::default()
-                .add_migrations(&db_url, get_migrations())
+                .add_migrations(&get_db_url(), get_migrations())
                 .build(),
         )
         .setup(|app| {
@@ -157,6 +167,7 @@ pub fn run() {
             log_frontend,
             open_native,
             get_build_info,
+            get_database_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

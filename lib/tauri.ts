@@ -57,3 +57,7 @@ export interface BuildInfo {
 export async function getBuildInfo(): Promise<BuildInfo> {
   return invoke<BuildInfo>("get_build_info")
 }
+
+export async function getDatabasePath(): Promise<string> {
+  return invoke<string>("get_database_path")
+}

@@ -1,8 +1,9 @@
 import Database from "@tauri-apps/plugin-sql"
 import type { Course, Note } from "@/types"
-import { isTauri } from "./tauri"
+import { isTauri, getDatabasePath } from "./tauri"
 
 let db: Database | null = null
+let dbPathPromise: Promise<string | null> | null = null
 const SQLITE_BATCH_SIZE = 500
 
 type PersistedCourseRow = {
@@ -27,11 +28,27 @@ type PersistedNoteRow = {
   created_at: string
 }
 
+async function resolveDatabasePath(): Promise<string | null> {
+  if (!dbPathPromise) {
+    dbPathPromise = (async () => {
+      if (!isTauri()) return null
+      try {
+        return await getDatabasePath()
+      } catch {
+        return null
+      }
+    })()
+  }
+  return dbPathPromise
+}
+
 async function getDatabase(): Promise<Database | null> {
   if (!isTauri()) return null
 
   if (!db) {
-    db = await Database.load("sqlite:melearner.db")
+    const path = await resolveDatabasePath()
+    if (!path) return null
+    db = await Database.load(path)
   }
 
   return db
